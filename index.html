@@ -1,0 +1,610 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Caja Huanaco">
+<meta name="format-detection" content="telephone=no">
+<title>Caja Expohobby · Huanaco</title>
+<style>
+  :root{
+    --ink:#1A1917;
+    --ink-soft:#5C5A54;
+    --paper:#FFFFFF;
+    --wall:#E9E7E1;
+    --line:#D2CFC7;
+    --green:#0F5A4E;
+    --green-dark:#0A3F37;
+    --amber:#B5641A;
+    --red:#9B2C2C;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;padding:0;background:var(--wall);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px;line-height:1.35;
+    padding-bottom:210px;
+  }
+  .num{font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
+  header{
+    position:sticky;top:0;z-index:20;background:var(--paper);
+    border-bottom:1px solid var(--line);padding:10px 12px 8px;
+  }
+  .hrow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .brand{font-weight:700;font-size:14px;letter-spacing:.02em}
+  .daystat{font-size:13px;color:var(--ink-soft)}
+  .pay{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
+  .pay button{
+    padding:11px 4px;border:1px solid var(--line);background:#F7F6F3;color:var(--ink-soft);
+    border-radius:var(--radius);font-size:14px;font-weight:600;line-height:1.15;
+  }
+  .pay button small{display:block;font-size:11px;font-weight:500;margin-top:2px}
+  .pay button.on{background:var(--green);border-color:var(--green);color:#fff}
+  section{padding:12px 12px 0}
+  h2{font-size:12px;font-weight:700;color:var(--ink-soft);margin:16px 0 7px;letter-spacing:.03em}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .prod{
+    position:relative;min-height:66px;padding:9px 10px;text-align:left;
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .prod:active{background:#EDEBE6;transform:scale(.985)}
+  .prod .n{font-size:13px;font-weight:600;line-height:1.2}
+  .prod .p{font-size:17px;font-weight:700;margin-top:5px}
+  .prod .badge{
+    position:absolute;top:-7px;right:-7px;min-width:24px;height:24px;border-radius:12px;
+    background:var(--green);color:#fff;font-size:13px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;padding:0 6px;
+  }
+  .prod.edit{border-style:dashed}
+  .ticket{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #EFEDE8}
+  .li:last-child{border-bottom:none}
+  .li .name{flex:1;font-size:14px}
+  .li .sub{display:block;font-size:12px;color:var(--ink-soft)}
+  .li .amt{font-size:15px;font-weight:700;min-width:78px;text-align:right}
+  .qbtn{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#F7F6F3;font-size:18px;font-weight:700;color:var(--ink)}
+  .empty{padding:16px 12px;color:var(--ink-soft);font-size:14px}
+  footer{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--paper);
+    border-top:1px solid var(--line);padding:9px 12px calc(10px + env(safe-area-inset-bottom));
+    box-shadow:0 -6px 18px rgba(0,0,0,.07);
+  }
+  .totline{display:flex;align-items:baseline;justify-content:space-between}
+  .totline .lbl{font-size:13px;color:var(--ink-soft)}
+  .strike{text-decoration:line-through;color:var(--ink-soft);font-size:14px}
+  .big{font-size:34px;font-weight:800;line-height:1.05}
+  .disc{font-size:12px;color:var(--amber);font-weight:600}
+  .actions{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:6px;margin-top:8px}
+  .actions button{padding:13px 6px;border-radius:var(--radius);font-size:15px;font-weight:700;border:1px solid var(--line);background:#F7F6F3;color:var(--ink)}
+  .actions .primary{background:var(--green);border-color:var(--green);color:#fff}
+  .vuelto{display:flex;gap:6px;align-items:center;margin-top:8px}
+  .vuelto input{flex:1;min-width:0;padding:11px;font-size:17px;border:1px solid var(--line);border-radius:var(--radius);background:#F7F6F3}
+  .vuelto .out{font-size:15px;font-weight:700;white-space:nowrap}
+  .tools{display:flex;gap:6px;flex-wrap:wrap;padding:16px 12px 24px}
+  .tools button{flex:1;padding:11px 8px;font-size:13px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius);color:var(--ink-soft);font-weight:600}
+  dialog{border:none;border-radius:14px;padding:0;width:min(92vw,420px);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+  dialog::backdrop{background:rgba(26,25,23,.5)}
+  .dlg{padding:16px}
+  .dlg h3{margin:0 0 12px;font-size:17px}
+  .dlg label{display:block;font-size:12px;color:var(--ink-soft);margin:10px 0 4px}
+  .dlg input,.dlg select{width:100%;padding:11px;font-size:16px;border:1px solid var(--line);border-radius:8px;background:#F7F6F3}
+  .dlg .row{display:flex;gap:8px;margin-top:16px}
+  .dlg .row button{flex:1;padding:12px;border-radius:8px;font-size:15px;font-weight:700;border:1px solid var(--line);background:#F7F6F3}
+  .dlg .row .primary{background:var(--green);border-color:var(--green);color:#fff}
+  .dlg .row .danger{background:#fff;border-color:var(--red);color:var(--red)}
+  .log{font-size:13px;max-height:46vh;overflow:auto}
+  .log div{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #EFEDE8}
+  .toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:200px;z-index:50;
+    background:var(--ink);color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;font-weight:600;
+    opacity:0;pointer-events:none;transition:opacity .18s;
+  }
+  .toast.show{opacity:1}
+  @media (min-width:560px){ .grid{grid-template-columns:repeat(3,1fr)} }
+</style>
+
+<noscript>
+  <div style="margin:12px;padding:14px;border:2px solid #9B2C2C;border-radius:10px;background:#fff;color:#9B2C2C;font-weight:600;line-height:1.4">
+    Este archivo se está abriendo en modo vista previa y por eso no aparecen los productos.
+    Hay que abrirlo con un navegador (Safari o Chrome) para que funcione.
+  </div>
+</noscript>
+
+<header>
+  <div class="hrow">
+    <span class="brand">HUANACO · Caja Expohobby</span>
+    <span class="daystat num" id="daystat">0 ventas</span>
+  </div>
+  <div class="pay" id="pay"></div>
+</header>
+
+<section>
+  <div id="cats"></div>
+
+  <h2>Ticket</h2>
+  <div class="ticket" id="ticket"><div class="empty">Tocá un producto para empezar.</div></div>
+
+  <div class="tools">
+    <button id="btnEdit">Editar precios</button>
+    <button id="btnAdd">+ Producto</button>
+    <button id="btnLog">Ventas del día</button>
+  </div>
+</section>
+
+<footer>
+  <div class="totline">
+    <div>
+      <div class="lbl">Total a cobrar</div>
+      <div class="disc" id="discLbl"></div>
+    </div>
+    <div style="text-align:right">
+      <div class="strike num" id="subt"></div>
+      <div class="big num" id="total">$0</div>
+    </div>
+  </div>
+  <div class="vuelto" id="vueltoBox" hidden>
+    <input id="paga" type="number" inputmode="numeric" placeholder="Paga con…">
+    <span class="out num" id="vuelto">Vuelto —</span>
+  </div>
+  <div class="actions">
+    <button id="btnUndo">Deshacer</button>
+    <button id="btnClear">Borrar</button>
+    <button class="primary" id="btnCobrar">Cobrar</button>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<dialog id="dlgProd"><div class="dlg">
+  <h3 id="dlgProdTitle">Producto</h3>
+  <label for="fName">Nombre (corto)</label>
+  <input id="fName" placeholder="Ej. Madeja Single">
+  <label for="fPrice">Precio</label>
+  <input id="fPrice" type="number" inputmode="numeric" placeholder="25000">
+  <label for="fCat">Grupo</label>
+  <input id="fCat" list="catlist" placeholder="Madejas">
+  <datalist id="catlist"></datalist>
+  <label for="fIva">IVA</label>
+  <select id="fIva">
+    <option value="g">Gravado (21%)</option>
+    <option value="e">Exento (libros)</option>
+  </select>
+  <div class="row">
+    <button id="fDelete" class="danger">Eliminar</button>
+    <button id="fCancel">Cancelar</button>
+    <button id="fSave" class="primary">Guardar</button>
+  </div>
+</div></dialog>
+
+<dialog id="dlgLog"><div class="dlg">
+  <h3>Ventas del día</h3>
+  <div id="logBody" class="log"></div>
+  <div id="logSum" style="margin-top:12px;font-size:14px;font-weight:700"></div>
+  <div class="row">
+    <button id="logCopy">Copiar resumen</button>
+    <button id="logExp">Exportar a Excel</button>
+    <button id="logClose" class="primary">Volver</button>
+  </div>
+  <div class="row">
+    <button id="logReset" class="danger">Cerrar caja y borrar ventas</button>
+  </div>
+</div></dialog>
+
+<dialog id="dlgFree"><div class="dlg">
+  <h3>Monto libre</h3>
+  <label for="fFree">Importe</label>
+  <input id="fFree" type="number" inputmode="numeric" placeholder="0">
+  <label for="fFreeName">Detalle (opcional)</label>
+  <input id="fFreeName" placeholder="Ej. Madeja tinte especial">
+  <label for="fFreeIva">IVA</label>
+  <select id="fFreeIva">
+    <option value="g">Gravado (21%)</option>
+    <option value="e">Exento (libros)</option>
+  </select>
+  <div class="row">
+    <button id="freeCancel">Cancelar</button>
+    <button id="freeSave" class="primary">Agregar</button>
+  </div>
+</div></dialog>
+
+<dialog id="dlgExp"><div class="dlg">
+  <h3>Exportar para SOS Contador</h3>
+  <label for="eFecha">Fecha de los comprobantes</label>
+  <input id="eFecha" type="date">
+  <label for="eTipo">Tipo de comprobante</label>
+  <select id="eTipo">
+    <option value="B">Factura B</option>
+    <option value="C">Factura C</option>
+    <option value="A">Factura A</option>
+    <option value="TB">Tique B</option>
+  </select>
+  <label for="ePv">Punto de venta</label>
+  <input id="ePv" inputmode="numeric" placeholder="00001">
+  <label for="eNum">Numerar desde</label>
+  <input id="eNum" type="number" inputmode="numeric" placeholder="1">
+  <label for="eIva">Alícuota de IVA (%) — 0 si sos monotributo</label>
+  <input id="eIva" type="number" inputmode="decimal" placeholder="21">
+  <div class="row">
+    <button id="eCopy">Copiar</button>
+    <button id="eCancel">Cancelar</button>
+    <button id="eDown" class="primary">Descargar</button>
+  </div>
+</div></dialog>
+
+<script>
+const fmt = n => '$' + new Intl.NumberFormat('es-AR',{maximumFractionDigits:0}).format(Math.round(n||0));
+
+const DEFAULTS = {
+  pagos: [
+    {id:'ef', nombre:'Efectivo',      desc:10},
+    {id:'tr', nombre:'Transferencia', desc:10},
+    {id:'tj', nombre:'Tarjeta / QR',  desc:0}
+  ],
+  productos: [
+    {id:'p1',  cat:'Madejas',        nombre:'Fingering',        precio:22000},
+    {id:'p2',  cat:'Madejas',        nombre:'Superfine Finger', precio:25000},
+    {id:'p3',  cat:'Madejas',        nombre:'DK',               precio:26000},
+    {id:'p4',  cat:'Madejas',        nombre:'Worsted',          precio:28000},
+    {id:'p5',  cat:'Madejas',        nombre:'Bulky',            precio:30000},
+    {id:'p6',  cat:'Madejas',        nombre:'Super Bulky',      precio:34000},
+    {id:'p7',  cat:'Minis & Bundles',nombre:'Mini madeja',      precio:8000},
+    {id:'p8',  cat:'Minis & Bundles',nombre:'Bundle mini minis',precio:30000},
+    {id:'p9',  cat:'Minis & Bundles',nombre:'Bundle minis',     precio:60000},
+    {id:'p10', cat:'Minis & Bundles',nombre:'Bundle completo',  precio:100000},
+    {id:'p11', cat:'Kits & Libros',  nombre:'Libro',            precio:75000, ex:true},
+    {id:'p12', cat:'Kits & Libros',  nombre:'Libro grande',     precio:85000, ex:true},
+    {id:'p13', cat:'Kits & Libros',  nombre:'Kit sin libro',    precio:153200},
+    {id:'p14', cat:'Kits & Libros',  nombre:'Kit con libro',    precio:228200},
+    {id:'p15', cat:'Otros',          nombre:'Accesorio chico',  precio:5000},
+    {id:'p16', cat:'Otros',          nombre:'Accesorio',        precio:12000}
+  ]
+};
+
+let cfg = JSON.parse(JSON.stringify(DEFAULTS));
+let ticket = [];
+let ventas = [];
+let pagoSel = 'ef';
+let editMode = false;
+let editing = null;
+
+/* ---------- guardado local (sin internet) ---------- */
+const STORE = (function(){
+  const mem = {};
+  const fallback = { getItem:k=>(k in mem?mem[k]:null), setItem:(k,v)=>{mem[k]=String(v)} };
+  let s = fallback, persistente = false;
+  for(const cand of ['localStorage','sessionStorage']){
+    try{
+      const st = window[cand];
+      st.setItem('__prueba','1'); st.removeItem('__prueba');
+      s = st; persistente = (cand === 'localStorage'); break;
+    }catch(e){}
+  }
+  return {
+    get: k => { try{ return s.getItem(k); }catch(e){ return null; } },
+    set: (k,v) => { try{ s.setItem(k,v); }catch(e){} },
+    persistente
+  };
+})();
+
+async function load(){
+  try{ const v = STORE.get('expohobby:cfg'); if(v) cfg = JSON.parse(v); }catch(e){}
+  try{ const v = STORE.get('expohobby:ventas'); if(v) ventas = JSON.parse(v); }catch(e){}
+  if(!cfg.pagos) cfg.pagos = DEFAULTS.pagos;
+  if(!cfg.productos) cfg.productos = DEFAULTS.productos;
+}
+async function saveCfg(){ STORE.set('expohobby:cfg', JSON.stringify(cfg)); }
+async function saveVentas(){ STORE.set('expohobby:ventas', JSON.stringify(ventas)); }
+
+/* ---------- cálculo ---------- */
+const pagoActual = () => cfg.pagos.find(p=>p.id===pagoSel) || cfg.pagos[0];
+const subtotal = () => ticket.reduce((a,i)=>a+i.precio*i.qty,0);
+const total = () => subtotal() * (1 - (pagoActual().desc||0)/100);
+
+/* ---------- render ---------- */
+function renderPagos(){
+  const el = document.getElementById('pay');
+  el.innerHTML = '';
+  cfg.pagos.forEach(p=>{
+    const b = document.createElement('button');
+    b.className = p.id===pagoSel ? 'on' : '';
+    b.innerHTML = p.nombre + '<small>' + (p.desc ? '−'+p.desc+'%' : 'sin desc.') + '</small>';
+    b.onclick = ()=>{ pagoSel = p.id; renderPagos(); renderTotal(); };
+    el.appendChild(b);
+  });
+}
+
+function renderProductos(){
+  const cont = document.getElementById('cats');
+  cont.innerHTML = '';
+  const cats = [...new Set(cfg.productos.map(p=>p.cat))];
+  document.getElementById('catlist').innerHTML = cats.map(c=>'<option value="'+c+'">').join('');
+  cats.forEach(cat=>{
+    const h = document.createElement('h2'); h.textContent = cat; cont.appendChild(h);
+    const g = document.createElement('div'); g.className='grid';
+    cfg.productos.filter(p=>p.cat===cat).forEach(p=>{
+      const b = document.createElement('button');
+      b.className = 'prod' + (editMode?' edit':'');
+      const q = ticket.filter(i=>i.ref===p.id).reduce((a,i)=>a+i.qty,0);
+      b.innerHTML = '<span class="n">'+p.nombre+(editMode&&p.ex?' · exento':'')+'</span><span class="p num">'+fmt(p.precio)+'</span>'
+                  + (q?'<span class="badge num">'+q+'</span>':'');
+      b.onclick = ()=> editMode ? abrirProducto(p) : agregar(p);
+      g.appendChild(b);
+    });
+    cont.appendChild(g);
+  });
+  const h = document.createElement('h2'); h.textContent='Extra'; cont.appendChild(h);
+  const g = document.createElement('div'); g.className='grid';
+  const free = document.createElement('button');
+  free.className='prod'; free.innerHTML='<span class="n">Monto libre</span><span class="p">$ …</span>';
+  free.onclick = ()=>{ document.getElementById('fFree').value=''; document.getElementById('fFreeName').value=''; document.getElementById('dlgFree').showModal(); };
+  g.appendChild(free); cont.appendChild(g);
+}
+
+function renderTicket(){
+  const el = document.getElementById('ticket');
+  if(!ticket.length){ el.innerHTML = '<div class="empty">Tocá un producto para empezar.</div>'; return; }
+  el.innerHTML = '';
+  ticket.forEach((it,idx)=>{
+    const row = document.createElement('div'); row.className='li';
+    const minus = document.createElement('button'); minus.className='qbtn'; minus.textContent='−';
+    minus.onclick = ()=>{ it.qty--; if(it.qty<=0) ticket.splice(idx,1); render(); };
+    const plus = document.createElement('button'); plus.className='qbtn'; plus.textContent='+';
+    plus.onclick = ()=>{ it.qty++; render(); };
+    const name = document.createElement('div'); name.className='name';
+    name.innerHTML = it.nombre + '<span class="sub num">'+it.qty+' × '+fmt(it.precio)+'</span>';
+    const amt = document.createElement('div'); amt.className='amt num'; amt.textContent = fmt(it.precio*it.qty);
+    row.append(minus, plus, name, amt);
+    el.appendChild(row);
+  });
+}
+
+function renderTotal(){
+  const s = subtotal(), t = total(), d = pagoActual().desc||0;
+  document.getElementById('total').textContent = fmt(t);
+  document.getElementById('subt').textContent = (d && s) ? fmt(s) : '';
+  document.getElementById('discLbl').textContent = (d && s) ? pagoActual().nombre+' −'+d+'%  ('+fmt(s-t)+')' : (s?pagoActual().nombre:'');
+  const vb = document.getElementById('vueltoBox');
+  vb.hidden = !(pagoSel==='ef' && s>0);
+  calcVuelto();
+  document.getElementById('daystat').textContent =
+    ventas.length + (ventas.length===1?' venta · ':' ventas · ') + fmt(ventas.reduce((a,v)=>a+v.total,0));
+}
+
+function render(){ renderProductos(); renderTicket(); renderTotal(); }
+
+/* ---------- acciones ---------- */
+function agregar(p){
+  const ex = ticket.find(i=>i.ref===p.id);
+  if(ex) ex.qty++; else ticket.push({ref:p.id, nombre:p.nombre, precio:p.precio, qty:1, ex:!!p.ex});
+  render();
+}
+function calcVuelto(){
+  const paga = parseFloat(document.getElementById('paga').value);
+  const out = document.getElementById('vuelto');
+  if(isNaN(paga) || !ticket.length){ out.textContent='Vuelto —'; return; }
+  const v = paga - total();
+  out.textContent = v>=0 ? 'Vuelto '+fmt(v) : 'Faltan '+fmt(-v);
+  out.style.color = v>=0 ? 'var(--green)' : 'var(--red)';
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 1600);
+}
+function limpiar(){ ticket=[]; document.getElementById('paga').value=''; render(); }
+
+document.getElementById('paga').addEventListener('input', calcVuelto);
+document.getElementById('btnUndo').onclick = ()=>{
+  if(!ticket.length) return;
+  const last = ticket[ticket.length-1];
+  last.qty--; if(last.qty<=0) ticket.pop();
+  render();
+};
+document.getElementById('btnClear').onclick = ()=>{ if(ticket.length) limpiar(); };
+document.getElementById('btnCobrar').onclick = async ()=>{
+  if(!ticket.length) return;
+  const t = total();
+  const factor = subtotal() ? t / subtotal() : 0;
+  const exento = ticket.filter(i=>i.ex).reduce((a,i)=>a+i.precio*i.qty,0) * factor;
+  ventas.push({ hora:new Date().toISOString(), pago:pagoActual().nombre, subtotal:subtotal(), total:t, exento:exento,
+                items:ticket.map(i=>({n:i.nombre,q:i.qty,p:i.precio,e:!!i.ex})) });
+  await saveVentas();
+  toast('Cobrado ' + fmt(t));
+  limpiar();
+};
+
+/* ---------- editar productos ---------- */
+document.getElementById('btnEdit').onclick = (e)=>{
+  editMode = !editMode;
+  e.target.textContent = editMode ? 'Listo' : 'Editar precios';
+  toast(editMode ? 'Tocá un producto para cambiarlo' : 'Modo venta');
+  render();
+};
+document.getElementById('btnAdd').onclick = ()=> abrirProducto(null);
+
+function abrirProducto(p){
+  editing = p;
+  document.getElementById('dlgProdTitle').textContent = p ? 'Editar producto' : 'Nuevo producto';
+  document.getElementById('fName').value  = p ? p.nombre : '';
+  document.getElementById('fPrice').value = p ? p.precio : '';
+  document.getElementById('fCat').value   = p ? p.cat : (cfg.productos[0]?.cat || 'Madejas');
+  document.getElementById('fIva').value   = (p && p.ex) ? 'e' : 'g';
+  document.getElementById('fDelete').style.display = p ? '' : 'none';
+  document.getElementById('dlgProd').showModal();
+}
+document.getElementById('fCancel').onclick = ()=> document.getElementById('dlgProd').close();
+document.getElementById('fSave').onclick = async ()=>{
+  const nombre = document.getElementById('fName').value.trim();
+  const precio = parseFloat(document.getElementById('fPrice').value);
+  const cat = document.getElementById('fCat').value.trim() || 'Otros';
+  const ex = document.getElementById('fIva').value === 'e';
+  if(!nombre || isNaN(precio)){ toast('Falta nombre o precio'); return; }
+  if(editing){ editing.nombre=nombre; editing.precio=precio; editing.cat=cat; editing.ex=ex; }
+  else cfg.productos.push({id:'p'+Date.now(), cat, nombre, precio, ex});
+  await saveCfg(); document.getElementById('dlgProd').close(); render();
+};
+document.getElementById('fDelete').onclick = async ()=>{
+  if(!editing) return;
+  cfg.productos = cfg.productos.filter(p=>p!==editing);
+  ticket = ticket.filter(i=>i.ref!==editing.id);
+  await saveCfg(); document.getElementById('dlgProd').close(); render();
+};
+
+/* ---------- monto libre ---------- */
+document.getElementById('freeCancel').onclick = ()=> document.getElementById('dlgFree').close();
+document.getElementById('freeSave').onclick = ()=>{
+  const v = parseFloat(document.getElementById('fFree').value);
+  if(isNaN(v) || v<=0){ toast('Poné un importe'); return; }
+  const n = document.getElementById('fFreeName').value.trim() || 'Monto libre';
+  ticket.push({ref:'free'+Date.now(), nombre:n, precio:v, qty:1, ex:document.getElementById('fFreeIva').value==='e'});
+  document.getElementById('dlgFree').close(); render();
+};
+
+/* ---------- ventas del día ---------- */
+document.getElementById('btnLog').onclick = ()=>{
+  const body = document.getElementById('logBody');
+  if(!ventas.length){ body.innerHTML = '<div style="color:var(--ink-soft)">Todavía no cobraste nada.</div>'; }
+  else{
+    body.innerHTML = ventas.slice().reverse().map(v=>{
+      const h = new Date(v.hora).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+      const det = v.items.map(i=>i.q+'× '+i.n).join(', ');
+      return '<div><span>'+h+' · '+v.pago+'<br><span style="color:var(--ink-soft);font-size:12px">'+det+'</span></span><b class="num">'+fmt(v.total)+'</b></div>';
+    }).join('');
+  }
+  const porPago = {};
+  ventas.forEach(v=>{ porPago[v.pago] = (porPago[v.pago]||0) + v.total; });
+  document.getElementById('logSum').innerHTML =
+    'Total: ' + fmt(ventas.reduce((a,v)=>a+v.total,0)) +
+    Object.keys(porPago).map(k=>'<br><span style="font-weight:500;color:var(--ink-soft)">'+k+': '+fmt(porPago[k])+'</span>').join('');
+  document.getElementById('dlgLog').showModal();
+};
+document.getElementById('logClose').onclick = ()=> document.getElementById('dlgLog').close();
+document.getElementById('logCopy').onclick = ()=>{
+  if(!ventas.length){ toast('No hay ventas'); return; }
+  const porPago = {};
+  ventas.forEach(v=>{ porPago[v.pago] = (porPago[v.pago]||0) + v.total; });
+  const txt = 'Caja Expohobby — ' + new Date().toLocaleDateString('es-AR') + '\n\n'
+    + ventas.map(v=>{
+        const h = new Date(v.hora).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+        return h+' · '+v.pago+' · '+fmt(v.total)+' · '+v.items.map(i=>i.q+'x '+i.n).join(', ');
+      }).join('\n')
+    + '\n\nTOTAL: ' + fmt(ventas.reduce((a,v)=>a+v.total,0)) + '\n'
+    + Object.keys(porPago).map(k=>k+': '+fmt(porPago[k])).join('\n');
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, txt.length);
+  let ok = false;
+  try{ ok = document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+  if(!ok && navigator.clipboard){ navigator.clipboard.writeText(txt).then(()=>toast('Resumen copiado'),()=>toast('No se pudo copiar')); return; }
+  toast(ok ? 'Resumen copiado' : 'No se pudo copiar');
+};
+document.getElementById('logReset').onclick = async ()=>{
+  if(!confirm('¿Cerrar caja y borrar las ventas registradas? Los productos y precios se mantienen.')) return;
+  ventas = []; await saveVentas();
+  document.getElementById('dlgLog').close(); render(); toast('Caja cerrada');
+};
+
+/* ---------- exportar a SOS Contador ---------- */
+const expDefault = {tipo:'B', pv:'00001', num:1, iva:21};
+function expCfg(){
+  try{ return Object.assign({}, expDefault, JSON.parse(STORE.get('expohobby:exp')||'{}')); }
+  catch(e){ return Object.assign({}, expDefault); }
+}
+document.getElementById('logExp').onclick = ()=>{
+  if(!ventas.length){ toast('No hay ventas para exportar'); return; }
+  const c = expCfg();
+  const hoy = new Date(); hoy.setMinutes(hoy.getMinutes()-hoy.getTimezoneOffset());
+  document.getElementById('eFecha').value = hoy.toISOString().slice(0,10);
+  document.getElementById('eTipo').value = c.tipo;
+  document.getElementById('ePv').value = c.pv;
+  document.getElementById('eNum').value = c.num;
+  document.getElementById('eIva').value = c.iva;
+  document.getElementById('dlgExp').showModal();
+};
+document.getElementById('eCancel').onclick = ()=> document.getElementById('dlgExp').close();
+
+function armarFilas(){
+  const tipo = document.getElementById('eTipo').value;
+  const pv   = (document.getElementById('ePv').value || '1').replace(/\D/g,'') || '1';
+  let num    = parseInt(document.getElementById('eNum').value,10); if(isNaN(num)) num = 1;
+  const alic = parseFloat(document.getElementById('eIva').value) || 0;
+  const f    = document.getElementById('eFecha').value;
+  const fecha = f ? f.split('-').reverse().join('/') : new Date().toLocaleDateString('es-AR');
+  STORE.set('expohobby:exp', JSON.stringify({tipo, pv, num, iva:alic}));
+
+  const dec = n => n.toFixed(2).replace('.', ',');
+  const cab = ['FECHA','TIPO','PVENTA','NUMERO','TIPODOC','NRODOC','CLIENTE','COND_IVA',
+               'IMP_GRAVAD','IVA','IMP_NOGRAVADO','IMP_EXENTO','OTROSIMP','TOTAL','MEDIO_PAGO','DETALLE'];
+  const filas = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora)).map(v=>{
+    const total  = v.total;
+    const exento = Math.min(v.exento || 0, total);
+    const grav   = total - exento;
+    const neto   = alic ? grav / (1 + alic/100) : grav;
+    const iva    = grav - neto;
+    return [
+      fecha, tipo, String(pv).padStart(5,'0'), String(num++).padStart(8,'0'),
+      'CUIT', '00000000000', 'Consumidor Final', 'CF',
+      dec(neto), dec(iva), '0,00', dec(exento), '0,00', dec(total),
+      v.pago, v.items.map(i=>i.q+'x '+i.n+(i.e?' (ex)':'')).join(' + ')
+    ];
+  });
+  return {cab, filas};
+}
+
+function descargar(nombre, texto, mime){
+  try{
+    const blob = new Blob(['\uFEFF'+texto], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nombre; a.rel='noopener';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 2000);
+    return true;
+  }catch(e){ return false; }
+}
+
+document.getElementById('eDown').onclick = ()=>{
+  const {cab, filas} = armarFilas();
+  const csv = [cab.join(';')].concat(filas.map(f=>f.join(';'))).join('\r\n');
+  const nombre = 'ventas-expohobby-' + (document.getElementById('eFecha').value || 'dia') + '.csv';
+  document.getElementById('dlgExp').close();
+  toast(descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Archivo generado' : 'No se pudo descargar, usá Copiar');
+};
+
+document.getElementById('eCopy').onclick = ()=>{
+  const {cab, filas} = armarFilas();
+  const txt = [cab.join('\t')].concat(filas.map(f=>f.join('\t'))).join('\n');
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, txt.length);
+  let ok=false; try{ ok = document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+  document.getElementById('dlgExp').close();
+  if(!ok && navigator.clipboard){ navigator.clipboard.writeText(txt).then(()=>toast('Copiado, pegalo en Excel')); return; }
+  toast(ok ? 'Copiado, pegalo en Excel' : 'No se pudo copiar');
+};
+
+/* ---------- funcionar sin conexión ---------- */
+if('serviceWorker' in navigator && location.protocol === 'https:'){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+/* ---------- init ---------- */
+(async ()=>{
+  await load(); renderPagos(); render();
+  if(!STORE.persistente){
+    const w = document.createElement('div');
+    w.style.cssText = 'padding:0 12px 8px;font-size:12px;color:var(--red);font-weight:600';
+    w.textContent = 'Ojo: este navegador no guarda los datos. No cierres la pestaña durante la feria y copiá el resumen al terminar.';
+    document.querySelector('.tools').insertAdjacentElement('beforebegin', w);
+  }
+  window.addEventListener('beforeunload', e=>{
+    if(ticket.length){ e.preventDefault(); e.returnValue=''; }
+  });
+})();
+</script>
