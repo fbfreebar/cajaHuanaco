@@ -2,7 +2,7 @@
    Si subís una versión nueva del index.html, cambiá el número de CACHE
    (v1 -> v2) para que el iPad tome los cambios. */
 
-const CACHE = 'caja-huanaco-v4';
+const CACHE = 'caja-huanaco-v5';
 const ARCHIVOS = ['./', './index.html'];
 
 self.addEventListener('install', e => {
