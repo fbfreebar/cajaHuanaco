@@ -43,15 +43,15 @@
   .pay button.on{background:var(--green);border-color:var(--green);color:#fff}
   section{padding:12px 12px 0}
   h2{font-size:12px;font-weight:700;color:var(--ink-soft);margin:16px 0 7px;letter-spacing:.03em}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
   .prod{
-    position:relative;min-height:66px;padding:9px 10px;text-align:left;
+    position:relative;min-height:62px;padding:8px 8px;text-align:left;
     background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
     display:flex;flex-direction:column;justify-content:space-between;
   }
   .prod:active{background:#EDEBE6;transform:scale(.985)}
-  .prod .n{font-size:13px;font-weight:600;line-height:1.2}
-  .prod .p{font-size:17px;font-weight:700;margin-top:5px}
+  .prod .n{font-size:12px;font-weight:600;line-height:1.2}
+  .prod .p{font-size:15px;font-weight:700;margin-top:4px}
   .prod .badge{
     position:absolute;top:-7px;right:-7px;min-width:24px;height:24px;border-radius:12px;
     background:var(--green);color:#fff;font-size:13px;font-weight:700;
@@ -102,7 +102,28 @@
     opacity:0;pointer-events:none;transition:opacity .18s;
   }
   .toast.show{opacity:1}
-  @media (min-width:560px){ .grid{grid-template-columns:repeat(3,1fr)} }
+  .cliente{
+    width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:11px 12px;margin-top:4px;background:var(--paper);border:1px solid var(--line);
+    border-radius:var(--radius);text-align:left;font-size:14px;color:var(--ink-soft);
+  }
+  .cliente.on{border-color:var(--green);color:var(--ink)}
+  .cliente b{font-weight:700}
+  .cliente .flag{font-size:12px;color:var(--green);font-weight:700;white-space:nowrap}
+  .check{display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px;border:1px solid var(--line);border-radius:8px;background:#F7F6F3}
+  .check input{width:22px;height:22px;flex:none}
+  .check label{margin:0;font-size:14px;color:var(--ink);font-weight:600}
+  .aviso{font-size:12px;margin-top:5px;font-weight:600}
+  .grow{display:flex;gap:5px;align-items:center;margin-bottom:6px}
+  .grow input{flex:1;min-width:0;padding:10px;font-size:15px;border:1px solid var(--line);border-radius:8px;background:#F7F6F3}
+  .grow button{width:38px;height:40px;flex:none;border:1px solid var(--line);background:#F7F6F3;border-radius:8px;font-size:15px;font-weight:700;color:var(--ink-soft)}
+  .grow button.x{background:#FFF2F2;border-color:#E7C4C4;color:var(--red)}
+  .grow .cnt{font-size:11px;color:var(--ink-soft);width:34px;text-align:center;flex:none}
+  .del{
+    position:absolute;top:-8px;left:-8px;width:26px;height:26px;border-radius:13px;
+    background:var(--red);color:#fff;font-size:15px;font-weight:700;line-height:26px;text-align:center;
+  }
+  .qdel{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#FFF2F2;color:var(--red);font-size:16px;font-weight:700}
 </style>
 
 <noscript>
@@ -123,12 +144,16 @@
 <section>
   <div id="cats"></div>
 
+  <h2>Cliente</h2>
+  <button class="cliente" id="btnCliente"><span id="cliTxt">Consumidor final — sin datos</span><span class="flag" id="cliFlag"></span></button>
+
   <h2>Ticket</h2>
   <div class="ticket" id="ticket"><div class="empty">Tocá un producto para empezar.</div></div>
 
   <div class="tools">
     <button id="btnEdit">Editar precios</button>
     <button id="btnAdd">+ Producto</button>
+    <button id="btnGrupos">Grupos</button>
     <button id="btnLog">Ventas del día</button>
   </div>
 </section>
@@ -170,7 +195,12 @@
   <select id="fIva">
     <option value="g">Gravado (21%)</option>
     <option value="e">Exento (libros)</option>
+    <option value="p">Parte exenta (kit con libro)</option>
   </select>
+  <div id="fParcial" hidden>
+    <label for="fMontoEx">Importe exento dentro del precio</label>
+    <input id="fMontoEx" type="number" inputmode="numeric" placeholder="75000">
+  </div>
   <div class="row">
     <button id="fDelete" class="danger">Eliminar</button>
     <button id="fCancel">Cancelar</button>
@@ -209,27 +239,80 @@
   </div>
 </div></dialog>
 
+<dialog id="dlgGru"><div class="dlg">
+  <h3>Grupos de productos</h3>
+  <div id="gList"></div>
+  <button id="gAdd" style="width:100%;margin-top:10px;padding:12px;border:1px dashed var(--line);background:#F7F6F3;border-radius:8px;font-size:14px;font-weight:600;color:var(--ink)">+ Agregar grupo</button>
+  <button id="gReset" style="width:100%;margin-top:8px;padding:10px;border:1px solid #E7C4C4;background:#FFF2F2;border-radius:8px;font-size:13px;font-weight:600;color:var(--red)">Restaurar catálogo Huanaco</button>
+  <div class="row">
+    <button id="gCancel">Cancelar</button>
+    <button id="gSave" class="primary">Guardar</button>
+  </div>
+</div></dialog>
+
+<dialog id="dlgCli"><div class="dlg">
+  <h3>Datos del cliente</h3>
+  <label for="cTipo">Comprobante</label>
+  <select id="cTipo">
+    <option value="B">Factura B — consumidor final</option>
+    <option value="A">Factura A — responsable inscripto</option>
+    <option value="C">Factura C — monotributo</option>
+  </select>
+  <label for="cEmail">Mail</label>
+  <input id="cEmail" type="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="nombre@mail.com">
+  <div class="check">
+    <input id="cEnviar" type="checkbox">
+    <label for="cEnviar">Enviar la factura por mail</label>
+  </div>
+  <div id="cFiscal" hidden>
+    <label for="cCuit">CUIT / CUIL (opcional)</label>
+    <input id="cCuit" inputmode="numeric" placeholder="30712345678">
+    <div class="aviso" id="cCuitMsg"></div>
+    <label for="cNombre">Razón social o nombre</label>
+    <input id="cNombre" placeholder="Opcional">
+  </div>
+  <div class="row">
+    <button id="cClear" class="danger">Vaciar</button>
+    <button id="cCancel">Cancelar</button>
+    <button id="cSave" class="primary">Guardar</button>
+  </div>
+</div></dialog>
+
 <dialog id="dlgExp"><div class="dlg">
   <h3>Exportar para SOS Contador</h3>
   <label for="eFecha">Fecha de los comprobantes</label>
   <input id="eFecha" type="date">
-  <label for="eTipo">Tipo de comprobante</label>
-  <select id="eTipo">
-    <option value="B">Factura B</option>
-    <option value="C">Factura C</option>
-    <option value="A">Factura A</option>
-    <option value="TB">Tique B</option>
-  </select>
   <label for="ePv">Punto de venta</label>
   <input id="ePv" inputmode="numeric" placeholder="00001">
-  <label for="eNum">Numerar desde</label>
-  <input id="eNum" type="number" inputmode="numeric" placeholder="1">
+  <label for="eNumB">Numerar facturas B desde</label>
+  <input id="eNumB" type="number" inputmode="numeric" placeholder="1">
+  <label for="eNumA">Numerar facturas A desde</label>
+  <input id="eNumA" type="number" inputmode="numeric" placeholder="1">
+  <label for="eNumC">Numerar facturas C desde</label>
+  <input id="eNumC" type="number" inputmode="numeric" placeholder="1">
   <label for="eIva">Alícuota de IVA (%) — 0 si sos monotributo</label>
   <input id="eIva" type="number" inputmode="decimal" placeholder="21">
+  <label for="eExtra">Columnas extra de SOS (mail y medio de pago)</label>
+  <select id="eExtra">
+    <option value="no">No incluir</option>
+    <option value="w">Columnas W a Z (Multicompro)</option>
+    <option value="ah">Columnas AH a AK (Mis Comprobantes)</option>
+  </select>
   <div class="row">
     <button id="eCopy">Copiar</button>
     <button id="eCancel">Cancelar</button>
-    <button id="eDown" class="primary">Descargar</button>
+    <button id="eDown" class="primary">Excel para SOS</button>
+  </div>
+  <div class="row">
+    <button id="eDet">Excel de detalle (cobros y mails)</button>
+  </div>
+  <label for="eCobModo">Archivo de cobros para SOS</label>
+  <select id="eCobModo">
+    <option value="venta">Una fila por venta</option>
+    <option value="medio">Un total por medio de pago</option>
+  </select>
+  <div class="row">
+    <button id="eCob">Excel de cobros</button>
   </div>
 </div></dialog>
 
@@ -237,28 +320,51 @@
 const fmt = n => '$' + new Intl.NumberFormat('es-AR',{maximumFractionDigits:0}).format(Math.round(n||0));
 
 const DEFAULTS = {
+  catalogo: 'huanaco-web-2026-09-16',
+  grupos: ['Madejas','Bundles','Kits','Libros & Revistas','Gift Cards','Otros'],
   pagos: [
     {id:'ef', nombre:'Efectivo',      desc:10},
     {id:'tr', nombre:'Transferencia', desc:10},
     {id:'tj', nombre:'Tarjeta / QR',  desc:0}
   ],
   productos: [
-    {id:'p1',  cat:'Madejas',        nombre:'Fingering',        precio:22000},
-    {id:'p2',  cat:'Madejas',        nombre:'Superfine Finger', precio:25000},
-    {id:'p3',  cat:'Madejas',        nombre:'DK',               precio:26000},
-    {id:'p4',  cat:'Madejas',        nombre:'Worsted',          precio:28000},
-    {id:'p5',  cat:'Madejas',        nombre:'Bulky',            precio:30000},
-    {id:'p6',  cat:'Madejas',        nombre:'Super Bulky',      precio:34000},
-    {id:'p7',  cat:'Minis & Bundles',nombre:'Mini madeja',      precio:8000},
-    {id:'p8',  cat:'Minis & Bundles',nombre:'Bundle mini minis',precio:30000},
-    {id:'p9',  cat:'Minis & Bundles',nombre:'Bundle minis',     precio:60000},
-    {id:'p10', cat:'Minis & Bundles',nombre:'Bundle completo',  precio:100000},
-    {id:'p11', cat:'Kits & Libros',  nombre:'Libro',            precio:75000, ex:true},
-    {id:'p12', cat:'Kits & Libros',  nombre:'Libro grande',     precio:85000, ex:true},
-    {id:'p13', cat:'Kits & Libros',  nombre:'Kit sin libro',    precio:153200},
-    {id:'p14', cat:'Kits & Libros',  nombre:'Kit con libro',    precio:228200},
-    {id:'p15', cat:'Otros',          nombre:'Accesorio chico',  precio:5000},
-    {id:'p16', cat:'Otros',          nombre:'Accesorio',        precio:12000}
+    {id:'m01', cat:'Madejas', nombre:'Top Superfina 100g',     precio:12000},
+    {id:'m02', cat:'Madejas', nombre:'Algodón Frontera Sport',precio:15000},
+    {id:'m03', cat:'Madejas', nombre:'Piño Los Pozos',         precio:19500},
+    {id:'m04', cat:'Madejas', nombre:'Merino Original',        precio:21500},
+    {id:'m05', cat:'Madejas', nombre:'Caja de Bordado',        precio:24000},
+    {id:'m06', cat:'Madejas', nombre:'Superfine Fingering',    precio:25000},
+    {id:'m07', cat:'Madejas', nombre:'Super Bulky',            precio:43000},
+    {id:'m08', cat:'Madejas', nombre:'Hilado a mano fino',     precio:43000},
+    {id:'m09', cat:'Madejas', nombre:'Hilado a mano medio',    precio:47300},
+    {id:'m10', cat:'Madejas', nombre:'Hilado a mano grueso',   precio:53750},
+    {id:'m11', cat:'Madejas', nombre:'Top Superfina 500g',     precio:54000},
+    {id:'m12', cat:'Madejas', nombre:'Cono algodón 500g',      precio:67500},
+
+    {id:'b01', cat:'Bundles', nombre:'Mini minis Single',      precio:27500},
+    {id:'b02', cat:'Bundles', nombre:'Mini minis Superfine',   precio:30000},
+    {id:'b03', cat:'Bundles', nombre:'Minis x5 Los Pozos',     precio:58500},
+    {id:'b04', cat:'Bundles', nombre:'Minis Superfine',        precio:60000},
+    {id:'b05', cat:'Bundles', nombre:'Bundle Lira',            precio:64500},
+    {id:'b06', cat:'Bundles', nombre:'Minis Single',           precio:103200},
+    {id:'b07', cat:'Bundles', nombre:'Minis Superfine grande', precio:120000},
+
+    {id:'k01', cat:'Kits', nombre:'Kit Kaleidoscope',          precio:116700},
+    {id:'k02', cat:'Kits', nombre:'Kit Painting s/libro',      precio:153200},
+    {id:'k03', cat:'Kits', nombre:'Kit Painting c/libro',      precio:228200, exm:75000},
+
+    {id:'l01', cat:'Libros & Revistas', nombre:'Laine Magazine', precio:39000, ex:true},
+    {id:'l02', cat:'Libros & Revistas', nombre:'Libro',          precio:49000, ex:true},
+    {id:'l03', cat:'Libros & Revistas', nombre:'Libro',          precio:75000, ex:true},
+    {id:'l04', cat:'Libros & Revistas', nombre:'Libro',          precio:85000, ex:true},
+    {id:'l05', cat:'Libros & Revistas', nombre:'Libro',          precio:95000, ex:true},
+
+    {id:'g01', cat:'Gift Cards', nombre:'Gift Card',           precio:30000},
+    {id:'g02', cat:'Gift Cards', nombre:'Gift Card',           precio:50000},
+    {id:'g03', cat:'Gift Cards', nombre:'Gift Card',           precio:150000},
+    {id:'g04', cat:'Gift Cards', nombre:'Gift Card',           precio:250000},
+
+    {id:'o01', cat:'Otros', nombre:'Patrón digital',           precio:13500}
   ]
 };
 
@@ -290,12 +396,167 @@ const STORE = (function(){
 
 async function load(){
   try{ const v = STORE.get('expohobby:cfg'); if(v) cfg = JSON.parse(v); }catch(e){}
+  if(cfg.catalogo !== DEFAULTS.catalogo){
+    cfg = JSON.parse(JSON.stringify(DEFAULTS));
+    STORE.set('expohobby:cfg', JSON.stringify(cfg));
+  }
   try{ const v = STORE.get('expohobby:ventas'); if(v) ventas = JSON.parse(v); }catch(e){}
   if(!cfg.pagos) cfg.pagos = DEFAULTS.pagos;
   if(!cfg.productos) cfg.productos = DEFAULTS.productos;
+  if(!Array.isArray(cfg.grupos) || !cfg.grupos.length){
+    cfg.grupos = [...new Set(cfg.productos.map(p=>p.cat))];
+  }
+  cfg.productos.forEach(p=>{ if(!cfg.grupos.includes(p.cat)) cfg.grupos.push(p.cat); });
 }
 async function saveCfg(){ STORE.set('expohobby:cfg', JSON.stringify(cfg)); }
 async function saveVentas(){ STORE.set('expohobby:ventas', JSON.stringify(ventas)); }
+
+let cliente = {tipo:'B', email:'', enviar:false, cuit:'', nombre:''};
+const clienteVacio = () => ({tipo:'B', email:'', enviar:false, cuit:'', nombre:''});
+
+/* ---------- grupos ---------- */
+let gTmp = [];
+function syncG(){
+  [...document.querySelectorAll('#gList .grow input')].forEach((inp,i)=>{ if(gTmp[i]) gTmp[i].nombre = inp.value; });
+}
+function renderGrupos(){
+  const cont = document.getElementById('gList');
+  cont.innerHTML = '';
+  gTmp.forEach((g,i)=>{
+    const row = document.createElement('div'); row.className='grow';
+    const inp = document.createElement('input'); inp.value = g.nombre; inp.placeholder='Nombre del grupo';
+    const cnt = document.createElement('span'); cnt.className='cnt';
+    const n = g.orig ? cfg.productos.filter(p=>p.cat===g.orig).length : 0;
+    cnt.textContent = n ? n+' art.' : 'vacío';
+    const up = document.createElement('button'); up.textContent='↑'; up.disabled = i===0;
+    up.onclick = ()=>{ syncG(); [gTmp[i-1],gTmp[i]]=[gTmp[i],gTmp[i-1]]; renderGrupos(); };
+    const dn = document.createElement('button'); dn.textContent='↓'; dn.disabled = i===gTmp.length-1;
+    dn.onclick = ()=>{ syncG(); [gTmp[i+1],gTmp[i]]=[gTmp[i],gTmp[i+1]]; renderGrupos(); };
+    const x = document.createElement('button'); x.textContent='✕'; x.className='x';
+    x.onclick = ()=>{
+      syncG();
+      if(n && !confirm('El grupo "'+g.orig+'" tiene '+n+' producto(s). Si lo borrás se eliminan también. ¿Seguir?')) return;
+      gTmp.splice(i,1); renderGrupos();
+    };
+    row.append(inp, cnt, up, dn, x);
+    cont.appendChild(row);
+  });
+  if(!gTmp.length) cont.innerHTML = '<div style="color:var(--ink-soft);font-size:14px">No hay grupos. Agregá uno.</div>';
+}
+document.getElementById('btnGrupos').onclick = ()=>{
+  gTmp = cfg.grupos.map(g=>({orig:g, nombre:g}));
+  renderGrupos();
+  document.getElementById('dlgGru').showModal();
+};
+document.getElementById('gAdd').onclick = ()=>{
+  syncG(); gTmp.push({orig:null, nombre:''}); renderGrupos();
+  const inputs = document.querySelectorAll('#gList .grow input');
+  if(inputs.length) inputs[inputs.length-1].focus();
+};
+document.getElementById('gCancel').onclick = ()=> document.getElementById('dlgGru').close();
+document.getElementById('gReset').onclick = async ()=>{
+  if(!confirm('Vuelve a la lista de productos y precios original de Huanaco. Se pierden los cambios que hayas hecho. ¿Seguir?')) return;
+  cfg.catalogo = DEFAULTS.catalogo;
+  cfg.grupos = DEFAULTS.grupos.slice();
+  cfg.productos = JSON.parse(JSON.stringify(DEFAULTS.productos));
+  ticket = [];
+  await saveCfg();
+  document.getElementById('dlgGru').close();
+  render(); toast('Catálogo restaurado');
+};
+document.getElementById('gSave').onclick = async ()=>{
+  syncG();
+  const nombres = gTmp.map(g=>g.nombre.trim());
+  if(nombres.some(n=>!n)){ toast('Hay un grupo sin nombre'); return; }
+  if(new Set(nombres.map(n=>n.toLowerCase())).size !== nombres.length){ toast('Hay dos grupos con el mismo nombre'); return; }
+  const quedan = gTmp.filter(g=>g.orig).map(g=>g.orig);
+  cfg.grupos.forEach(g=>{
+    if(!quedan.includes(g)) cfg.productos = cfg.productos.filter(p=>p.cat!==g);
+  });
+  gTmp.forEach((g,i)=>{
+    const nuevo = nombres[i];
+    if(g.orig && g.orig !== nuevo) cfg.productos.forEach(p=>{ if(p.cat===g.orig) p.cat = nuevo; });
+  });
+  cfg.grupos = nombres;
+  ticket = ticket.filter(i => i.ref.startsWith('free') || cfg.productos.some(p=>p.id===i.ref));
+  await saveCfg();
+  document.getElementById('dlgGru').close();
+  render(); toast('Grupos actualizados');
+};
+
+/* ---------- cliente ---------- */
+function cuitValido(c){
+  if(!/^\d{11}$/.test(c)) return false;
+  const p = [5,4,3,2,7,6,5,4,3,2];
+  let s = 0; for(let i=0;i<10;i++) s += parseInt(c[i],10) * p[i];
+  let v = 11 - (s % 11); if(v === 11) v = 0; if(v === 10) v = 9;
+  return v === parseInt(c[10],10);
+}
+const cuitLindo = c => c.length===11 ? c.slice(0,2)+'-'+c.slice(2,10)+'-'+c.slice(10) : c;
+
+function renderCliente(){
+  const b = document.getElementById('btnCliente');
+  const t = document.getElementById('cliTxt');
+  const f = document.getElementById('cliFlag');
+  const hay = cliente.email || cliente.cuit || cliente.nombre || cliente.tipo !== 'B';
+  b.className = 'cliente' + (hay ? ' on' : '');
+  const partes = ['<b>Factura '+cliente.tipo+'</b>'];
+  if(cliente.nombre) partes.push(cliente.nombre);
+  if(cliente.email) partes.push(cliente.email);
+  if(cliente.cuit) partes.push(cuitLindo(cliente.cuit));
+  if(!hay) partes.push('consumidor final');
+  t.innerHTML = partes.join(' · ');
+  f.textContent = cliente.enviar ? '✉ factura' : '';
+}
+
+document.getElementById('btnCliente').onclick = ()=>{
+  document.getElementById('cTipo').value   = cliente.tipo;
+  document.getElementById('cEmail').value  = cliente.email;
+  document.getElementById('cEnviar').checked = cliente.enviar;
+  document.getElementById('cCuit').value   = cliente.cuit;
+  document.getElementById('cNombre').value = cliente.nombre;
+  document.getElementById('cCuitMsg').textContent = '';
+  verFiscal();
+  document.getElementById('dlgCli').showModal();
+};
+function verFiscal(){
+  const pideCuit = document.getElementById('cTipo').value === 'A' || document.getElementById('cEnviar').checked;
+  document.getElementById('cFiscal').hidden = !pideCuit;
+}
+document.getElementById('cTipo').onchange = verFiscal;
+document.getElementById('cEnviar').onchange = verFiscal;
+document.getElementById('cCuit').oninput = e=>{
+  const v = e.target.value.replace(/\D/g,'');
+  const m = document.getElementById('cCuitMsg');
+  if(!v){ m.textContent=''; return; }
+  if(v.length < 11){ m.textContent = 'Faltan dígitos ('+v.length+' de 11)'; m.style.color='var(--ink-soft)'; return; }
+  const ok = cuitValido(v);
+  m.textContent = ok ? '✓ CUIT válido' : '✗ El CUIT no verifica, revisalo';
+  m.style.color = ok ? 'var(--green)' : 'var(--red)';
+};
+document.getElementById('cCancel').onclick = ()=> document.getElementById('dlgCli').close();
+document.getElementById('cClear').onclick = ()=>{
+  cliente = clienteVacio();
+  document.getElementById('dlgCli').close(); renderCliente();
+};
+document.getElementById('cSave').onclick = ()=>{
+  const tipo = document.getElementById('cTipo').value;
+  const email = document.getElementById('cEmail').value.trim();
+  const enviar = document.getElementById('cEnviar').checked;
+  const cuit = document.getElementById('cCuit').value.replace(/\D/g,'');
+  const pideCuit = tipo === 'A' || enviar;
+  if(enviar && !email){ toast('Falta el mail para poder enviarla'); return; }
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('Revisá el mail'); return; }
+  if(tipo === 'A' && !cuitValido(cuit)){ toast('La factura A necesita un CUIT válido'); return; }
+  cliente = {
+    tipo,
+    email,
+    enviar,
+    cuit: pideCuit ? cuit : '',
+    nombre: pideCuit ? document.getElementById('cNombre').value.trim() : ''
+  };
+  document.getElementById('dlgCli').close(); renderCliente();
+};
 
 /* ---------- cálculo ---------- */
 const pagoActual = () => cfg.pagos.find(p=>p.id===pagoSel) || cfg.pagos[0];
@@ -318,18 +579,29 @@ function renderPagos(){
 function renderProductos(){
   const cont = document.getElementById('cats');
   cont.innerHTML = '';
-  const cats = [...new Set(cfg.productos.map(p=>p.cat))];
+  const cats = cfg.grupos.slice();
+  cfg.productos.forEach(p=>{ if(!cats.includes(p.cat)) cats.push(p.cat); });
   document.getElementById('catlist').innerHTML = cats.map(c=>'<option value="'+c+'">').join('');
   cats.forEach(cat=>{
     const h = document.createElement('h2'); h.textContent = cat; cont.appendChild(h);
     const g = document.createElement('div'); g.className='grid';
-    cfg.productos.filter(p=>p.cat===cat).forEach(p=>{
+    const delGrupo = cfg.productos.filter(p=>p.cat===cat);
+    if(!delGrupo.length){
+      const v = document.createElement('div');
+      v.style.cssText = 'grid-column:1/-1;font-size:12px;color:var(--ink-soft);padding:2px 0 4px';
+      v.textContent = 'Grupo vacío — agregale productos con "+ Producto".';
+      g.appendChild(v);
+    }
+    delGrupo.forEach(p=>{
       const b = document.createElement('button');
       b.className = 'prod' + (editMode?' edit':'');
       const q = ticket.filter(i=>i.ref===p.id).reduce((a,i)=>a+i.qty,0);
-      b.innerHTML = '<span class="n">'+p.nombre+(editMode&&p.ex?' · exento':'')+'</span><span class="p num">'+fmt(p.precio)+'</span>'
-                  + (q?'<span class="badge num">'+q+'</span>':'');
+      b.innerHTML = '<span class="n">'+p.nombre+(editMode ? (p.ex?' · exento':(p.exm?' · ex '+fmt(p.exm):'')) : '')+'</span><span class="p num">'+fmt(p.precio)+'</span>'
+                  + (q?'<span class="badge num">'+q+'</span>':'')
+                  + (editMode?'<span class="del">✕</span>':'');
       b.onclick = ()=> editMode ? abrirProducto(p) : agregar(p);
+      const x = b.querySelector('.del');
+      if(x) x.onclick = ev => { ev.stopPropagation(); borrarProducto(p); };
       g.appendChild(b);
     });
     cont.appendChild(g);
@@ -340,6 +612,13 @@ function renderProductos(){
   free.className='prod'; free.innerHTML='<span class="n">Monto libre</span><span class="p">$ …</span>';
   free.onclick = ()=>{ document.getElementById('fFree').value=''; document.getElementById('fFreeName').value=''; document.getElementById('dlgFree').showModal(); };
   g.appendChild(free); cont.appendChild(g);
+}
+
+async function borrarProducto(p){
+  if(!confirm('¿Eliminar "'+p.nombre+'" de la lista de productos?')) return;
+  cfg.productos = cfg.productos.filter(x=>x!==p);
+  ticket = ticket.filter(i=>i.ref!==p.id);
+  await saveCfg(); render(); toast('Producto eliminado');
 }
 
 function renderTicket(){
@@ -355,7 +634,9 @@ function renderTicket(){
     const name = document.createElement('div'); name.className='name';
     name.innerHTML = it.nombre + '<span class="sub num">'+it.qty+' × '+fmt(it.precio)+'</span>';
     const amt = document.createElement('div'); amt.className='amt num'; amt.textContent = fmt(it.precio*it.qty);
-    row.append(minus, plus, name, amt);
+    const del = document.createElement('button'); del.className='qdel'; del.textContent='✕'; del.title='Quitar del ticket';
+    del.onclick = ()=>{ ticket.splice(idx,1); render(); };
+    row.append(minus, plus, name, amt, del);
     el.appendChild(row);
   });
 }
@@ -377,7 +658,7 @@ function render(){ renderProductos(); renderTicket(); renderTotal(); }
 /* ---------- acciones ---------- */
 function agregar(p){
   const ex = ticket.find(i=>i.ref===p.id);
-  if(ex) ex.qty++; else ticket.push({ref:p.id, nombre:p.nombre, precio:p.precio, qty:1, ex:!!p.ex});
+  if(ex) ex.qty++; else ticket.push({ref:p.id, nombre:p.nombre, precio:p.precio, qty:1, ex:!!p.ex, exm:p.exm||0});
   render();
 }
 function calcVuelto(){
@@ -393,7 +674,7 @@ function toast(msg){
   t.textContent = msg; t.classList.add('show');
   clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 1600);
 }
-function limpiar(){ ticket=[]; document.getElementById('paga').value=''; render(); }
+function limpiar(){ ticket=[]; cliente=clienteVacio(); document.getElementById('paga').value=''; renderCliente(); render(); }
 
 document.getElementById('paga').addEventListener('input', calcVuelto);
 document.getElementById('btnUndo').onclick = ()=>{
@@ -407,9 +688,10 @@ document.getElementById('btnCobrar').onclick = async ()=>{
   if(!ticket.length) return;
   const t = total();
   const factor = subtotal() ? t / subtotal() : 0;
-  const exento = ticket.filter(i=>i.ex).reduce((a,i)=>a+i.precio*i.qty,0) * factor;
+  const exento = ticket.reduce((a,i)=>a + (i.ex ? i.precio : (i.exm||0)) * i.qty, 0) * factor;
   ventas.push({ hora:new Date().toISOString(), pago:pagoActual().nombre, subtotal:subtotal(), total:t, exento:exento,
-                items:ticket.map(i=>({n:i.nombre,q:i.qty,p:i.precio,e:!!i.ex})) });
+                cliente:Object.assign({}, cliente),
+                items:ticket.map(i=>({n:i.nombre,q:i.qty,p:i.precio,e:!!i.ex,em:i.exm||0})) });
   await saveVentas();
   toast('Cobrado ' + fmt(t));
   limpiar();
@@ -430,19 +712,28 @@ function abrirProducto(p){
   document.getElementById('fName').value  = p ? p.nombre : '';
   document.getElementById('fPrice').value = p ? p.precio : '';
   document.getElementById('fCat').value   = p ? p.cat : (cfg.productos[0]?.cat || 'Madejas');
-  document.getElementById('fIva').value   = (p && p.ex) ? 'e' : 'g';
+  document.getElementById('fIva').value   = (p && p.ex) ? 'e' : ((p && p.exm) ? 'p' : 'g');
+  document.getElementById('fMontoEx').value = (p && p.exm) ? p.exm : '';
+  document.getElementById('fParcial').hidden = !(p && p.exm);
   document.getElementById('fDelete').style.display = p ? '' : 'none';
   document.getElementById('dlgProd').showModal();
 }
+document.getElementById('fIva').onchange = e=>{
+  document.getElementById('fParcial').hidden = e.target.value !== 'p';
+};
 document.getElementById('fCancel').onclick = ()=> document.getElementById('dlgProd').close();
 document.getElementById('fSave').onclick = async ()=>{
   const nombre = document.getElementById('fName').value.trim();
   const precio = parseFloat(document.getElementById('fPrice').value);
   const cat = document.getElementById('fCat').value.trim() || 'Otros';
-  const ex = document.getElementById('fIva').value === 'e';
+  const modo = document.getElementById('fIva').value;
+  const ex = modo === 'e';
+  const exm = modo === 'p' ? (parseFloat(document.getElementById('fMontoEx').value) || 0) : 0;
   if(!nombre || isNaN(precio)){ toast('Falta nombre o precio'); return; }
-  if(editing){ editing.nombre=nombre; editing.precio=precio; editing.cat=cat; editing.ex=ex; }
-  else cfg.productos.push({id:'p'+Date.now(), cat, nombre, precio, ex});
+  if(modo === 'p' && (exm <= 0 || exm >= precio)){ toast('El importe exento tiene que ser menor al precio'); return; }
+  if(editing){ editing.nombre=nombre; editing.precio=precio; editing.cat=cat; editing.ex=ex; editing.exm=exm; }
+  else cfg.productos.push({id:'p'+Date.now(), cat, nombre, precio, ex, exm});
+  if(!cfg.grupos.includes(cat)) cfg.grupos.push(cat);
   await saveCfg(); document.getElementById('dlgProd').close(); render();
 };
 document.getElementById('fDelete').onclick = async ()=>{
@@ -470,7 +761,11 @@ document.getElementById('btnLog').onclick = ()=>{
     body.innerHTML = ventas.slice().reverse().map(v=>{
       const h = new Date(v.hora).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
       const det = v.items.map(i=>i.q+'× '+i.n).join(', ');
-      return '<div><span>'+h+' · '+v.pago+'<br><span style="color:var(--ink-soft);font-size:12px">'+det+'</span></span><b class="num">'+fmt(v.total)+'</b></div>';
+      const c = v.cliente || {};
+      const cli = c.email ? '<br><span style="color:var(--green);font-size:12px;font-weight:600">'
+                            + (c.enviar?'✉ factura → ':'') + c.email
+                            + (c.cuit ? ' · ' + cuitLindo(c.cuit) : '') + '</span>' : '';
+      return '<div><span>'+h+' · '+v.pago+' · <b>F'+((v.cliente&&v.cliente.tipo)||'B')+'</b><br><span style="color:var(--ink-soft);font-size:12px">'+det+'</span>'+cli+'</span><b class="num">'+fmt(v.total)+'</b></div>';
     }).join('');
   }
   const porPago = {};
@@ -488,7 +783,9 @@ document.getElementById('logCopy').onclick = ()=>{
   const txt = 'Caja Expohobby — ' + new Date().toLocaleDateString('es-AR') + '\n\n'
     + ventas.map(v=>{
         const h = new Date(v.hora).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-        return h+' · '+v.pago+' · '+fmt(v.total)+' · '+v.items.map(i=>i.q+'x '+i.n).join(', ');
+        const c = v.cliente || {};
+        const cli = c.email ? ' · ' + (c.enviar?'FACTURA a ':'') + c.email + (c.cuit?' ('+cuitLindo(c.cuit)+')':'') : '';
+        return h+' · '+v.pago+' · '+fmt(v.total)+' · '+v.items.map(i=>i.q+'x '+i.n).join(', ')+cli;
       }).join('\n')
     + '\n\nTOTAL: ' + fmt(ventas.reduce((a,v)=>a+v.total,0)) + '\n'
     + Object.keys(porPago).map(k=>k+': '+fmt(porPago[k])).join('\n');
@@ -508,7 +805,7 @@ document.getElementById('logReset').onclick = async ()=>{
 };
 
 /* ---------- exportar a SOS Contador ---------- */
-const expDefault = {tipo:'B', pv:'00001', num:1, iva:21};
+const expDefault = {pv:'00001', numB:1, numA:1, numC:1, iva:21, extra:'no'};
 function expCfg(){
   try{ return Object.assign({}, expDefault, JSON.parse(STORE.get('expohobby:exp')||'{}')); }
   catch(e){ return Object.assign({}, expDefault); }
@@ -518,37 +815,125 @@ document.getElementById('logExp').onclick = ()=>{
   const c = expCfg();
   const hoy = new Date(); hoy.setMinutes(hoy.getMinutes()-hoy.getTimezoneOffset());
   document.getElementById('eFecha').value = hoy.toISOString().slice(0,10);
-  document.getElementById('eTipo').value = c.tipo;
-  document.getElementById('ePv').value = c.pv;
-  document.getElementById('eNum').value = c.num;
-  document.getElementById('eIva').value = c.iva;
+  document.getElementById('ePv').value   = c.pv;
+  document.getElementById('eNumB').value = c.numB;
+  document.getElementById('eNumA').value = c.numA;
+  document.getElementById('eNumC').value = c.numC;
+  document.getElementById('eIva').value  = c.iva;
+  document.getElementById('eExtra').value = c.extra || 'no';
   document.getElementById('dlgExp').showModal();
 };
 document.getElementById('eCancel').onclick = ()=> document.getElementById('dlgExp').close();
 
+const CODCBTE = {A:1, B:6, C:11};
 function armarFilas(){
-  const tipo = document.getElementById('eTipo').value;
-  const pv   = (document.getElementById('ePv').value || '1').replace(/\D/g,'') || '1';
-  let num    = parseInt(document.getElementById('eNum').value,10); if(isNaN(num)) num = 1;
+  const pv   = parseInt((document.getElementById('ePv').value || '1').replace(/\D/g,''),10) || 1;
+  const desde = {
+    B: parseInt(document.getElementById('eNumB').value,10) || 1,
+    A: parseInt(document.getElementById('eNumA').value,10) || 1,
+    C: parseInt(document.getElementById('eNumC').value,10) || 1
+  };
+  const num = Object.assign({}, desde);
   const alic = parseFloat(document.getElementById('eIva').value) || 0;
   const f    = document.getElementById('eFecha').value;
   const fecha = f ? f.split('-').reverse().join('/') : new Date().toLocaleDateString('es-AR');
-  STORE.set('expohobby:exp', JSON.stringify({tipo, pv, num, iva:alic}));
+  STORE.set('expohobby:exp', JSON.stringify({pv:String(pv), numB:desde.B, numA:desde.A, numC:desde.C, iva:alic, extra:document.getElementById('eExtra').value}));
 
   const dec = n => n.toFixed(2).replace('.', ',');
-  const cab = ['FECHA','TIPO','PVENTA','NUMERO','TIPODOC','NRODOC','CLIENTE','COND_IVA',
-               'IMP_GRAVAD','IVA','IMP_NOGRAVADO','IMP_EXENTO','OTROSIMP','TOTAL','MEDIO_PAGO','DETALLE'];
+  const cab = ['Fecha de Emisión','Tipo de Comprobante','Punto de Venta','Número Desde','Número Hasta',
+               'Cód. Autorización','Tipo Doc. Receptor','Nro. Doc. Receptor','Denominación Receptor',
+               'Tipo Cambio','Moneda','Imp. Neto Gravado','Imp. Neto No Gravado','Imp. Op. Exentas',
+               'Otros Tributos','IVA','Imp. Total'];
   const filas = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora)).map(v=>{
     const total  = v.total;
     const exento = Math.min(v.exento || 0, total);
     const grav   = total - exento;
     const neto   = alic ? grav / (1 + alic/100) : grav;
     const iva    = grav - neto;
+    const c      = v.cliente || {};
+    const tipo   = c.tipo || 'B';
+    const conCuit = c.cuit && c.cuit.length === 11;
+    if(num[tipo] === undefined) num[tipo] = 1;
+    const n = num[tipo]++;
     return [
-      fecha, tipo, String(pv).padStart(5,'0'), String(num++).padStart(8,'0'),
-      'CUIT', '00000000000', 'Consumidor Final', 'CF',
-      dec(neto), dec(iva), '0,00', dec(exento), '0,00', dec(total),
-      v.pago, v.items.map(i=>i.q+'x '+i.n+(i.e?' (ex)':'')).join(' + ')
+      fecha, CODCBTE[tipo] || 6, pv, n, n,
+      '',
+      conCuit ? 80 : 99,
+      conCuit ? c.cuit : 0,
+      conCuit ? (c.nombre || c.email || 'Cliente') : (c.nombre || 'Consumidor Final'),
+      '1,00', 'PES',
+      dec(neto), '0,00', dec(exento), '0,00', dec(iva), dec(total)
+    ];
+  });
+  const extra = document.getElementById('eExtra').value;
+  if(extra !== 'no'){
+    const inicio = extra === 'w' ? 22 : 33;   // W = col 23, AH = col 34 (base 0)
+    const relleno = inicio - cab.length;
+    const vacios = new Array(relleno).fill('');
+    cab.push(...vacios, 'Centro de Costo', 'Observaciones', 'E-mail', 'Teléfono');
+    const orden = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora));
+    filas.forEach((f,i)=>{
+      const v = orden[i], c = v.cliente || {};
+      f.push(...vacios, '', 'Cobro: ' + v.pago, c.email || '', '');
+    });
+  }
+  return {cab, filas};
+}
+
+function armarCobros(){
+  const pv = parseInt((document.getElementById('ePv').value || '1').replace(/\D/g,''),10) || 1;
+  const num = {
+    B: parseInt(document.getElementById('eNumB').value,10) || 1,
+    A: parseInt(document.getElementById('eNumA').value,10) || 1,
+    C: parseInt(document.getElementById('eNumC').value,10) || 1
+  };
+  const f = document.getElementById('eFecha').value;
+  const fecha = f ? f.split('-').reverse().join('/') : new Date().toLocaleDateString('es-AR');
+  const dec = n => n.toFixed(2).replace('.', ',');
+  const orden = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora));
+  const cab = ['Fecha','Descripción','Importe','Saldo'];
+  const saldo = ['', '', '', ''];          // fila 2: reservada para el saldo de la cuenta
+  let filas;
+
+  if(document.getElementById('eCobModo').value === 'medio'){
+    const porMedio = {};
+    orden.forEach(v=>{ porMedio[v.pago] = (porMedio[v.pago] || 0) + v.total; });
+    filas = Object.keys(porMedio).map(m => [fecha, 'Cobros ' + m + ' - Expohobby ' + fecha, dec(porMedio[m]), '']);
+  }else{
+    filas = orden.map(v=>{
+      const c = v.cliente || {};
+      const tipo = c.tipo || 'B';
+      if(num[tipo] === undefined) num[tipo] = 1;
+      const n = String(num[tipo]++).padStart(8,'0');
+      const quien = (c.cuit && c.cuit.length === 11) ? 'CUIT ' + c.cuit + (c.nombre ? ' ' + c.nombre : '') : 'Consumidor Final';
+      return [fecha, 'Cobro ' + v.pago + ' F' + tipo + ' ' + String(pv).padStart(4,'0') + '-' + n + ' ' + quien, dec(v.total), ''];
+    });
+  }
+  return {cab, saldo, filas};
+}
+
+function armarDetalle(){
+  const pv = parseInt((document.getElementById('ePv').value || '1').replace(/\D/g,''),10) || 1;
+  const num = {
+    B: parseInt(document.getElementById('eNumB').value,10) || 1,
+    A: parseInt(document.getElementById('eNumA').value,10) || 1,
+    C: parseInt(document.getElementById('eNumC').value,10) || 1
+  };
+  const dec = n => n.toFixed(2).replace('.', ',');
+  const cab = ['Fecha','Hora','Comprobante','Punto de Venta','Número','Medio de pago','Detalle','Total','Mail','Enviar factura','CUIT','Razón social'];
+  const filas = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora)).map(v=>{
+    const d = new Date(v.hora), c = v.cliente || {};
+    const tipo = c.tipo || 'B';
+    if(num[tipo] === undefined) num[tipo] = 1;
+    return [
+      d.toLocaleDateString('es-AR'),
+      d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false}),
+      'Factura ' + tipo,
+      pv, num[tipo]++,
+      v.pago,
+      v.items.map(i=>i.q+'x '+i.n+(i.e?' (exento)':(i.em?' (parte exenta)':''))).join(' + '),
+      dec(v.total),
+      c.email || '', c.enviar ? 'SI' : 'NO', c.cuit || '', c.nombre || ''
     ];
   });
   return {cab, filas};
@@ -569,9 +954,25 @@ function descargar(nombre, texto, mime){
 document.getElementById('eDown').onclick = ()=>{
   const {cab, filas} = armarFilas();
   const csv = [cab.join(';')].concat(filas.map(f=>f.join(';'))).join('\r\n');
-  const nombre = 'ventas-expohobby-' + (document.getElementById('eFecha').value || 'dia') + '.csv';
+  const nombre = "mis-comprobantes-" + (document.getElementById("eFecha").value || 'dia') + '.csv';
   document.getElementById('dlgExp').close();
   toast(descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Archivo generado' : 'No se pudo descargar, usá Copiar');
+};
+
+document.getElementById('eCob').onclick = ()=>{
+  const {cab, saldo, filas} = armarCobros();
+  const csv = [cab.join(';'), saldo.join(';')].concat(filas.map(f=>f.join(';'))).join('\r\n');
+  const nombre = 'cobros-' + (document.getElementById('eFecha').value || 'dia') + '.csv';
+  document.getElementById('dlgExp').close();
+  toast(descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Cobros generados' : 'No se pudo descargar');
+};
+
+document.getElementById('eDet').onclick = ()=>{
+  const {cab, filas} = armarDetalle();
+  const csv = [cab.join(';')].concat(filas.map(f=>f.join(';'))).join('\r\n');
+  const nombre = 'detalle-ventas-' + (document.getElementById('eFecha').value || 'dia') + '.csv';
+  document.getElementById('dlgExp').close();
+  toast(descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Detalle generado' : 'No se pudo descargar');
 };
 
 document.getElementById('eCopy').onclick = ()=>{
@@ -596,7 +997,7 @@ if('serviceWorker' in navigator && location.protocol === 'https:'){
 
 /* ---------- init ---------- */
 (async ()=>{
-  await load(); renderPagos(); render();
+  await load(); renderPagos(); renderCliente(); render();
   if(!STORE.persistente){
     const w = document.createElement('div');
     w.style.cssText = 'padding:0 12px 8px;font-size:12px;color:var(--red);font-weight:600';
