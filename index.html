@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -6,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Caja Huanaco">
 <meta name="format-detection" content="telephone=no">
 <title>Caja Expohobby · Huanaco</title>
+</head>
+<body>
 <style>
   :root{
     --ink:#1A1917;
@@ -23,7 +28,7 @@
   body{
     margin:0;padding:0;background:var(--wall);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    font-size:16px;line-height:1.35;
+    font-size:17px;line-height:1.4;
     padding-bottom:210px;
   }
   .num{font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
@@ -32,26 +37,26 @@
     border-bottom:1px solid var(--line);padding:10px 12px 8px;
   }
   .hrow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-  .brand{font-weight:700;font-size:14px;letter-spacing:.02em}
-  .daystat{font-size:13px;color:var(--ink-soft)}
+  .brand{font-weight:700;font-size:15px;letter-spacing:.02em}
+  .daystat{font-size:14px;color:var(--ink-soft)}
   .pay{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
   .pay button{
-    padding:11px 4px;border:1px solid var(--line);background:#F7F6F3;color:var(--ink-soft);
-    border-radius:var(--radius);font-size:14px;font-weight:600;line-height:1.15;
+    padding:12px 4px;border:1px solid var(--line);background:#F7F6F3;color:var(--ink-soft);
+    border-radius:var(--radius);font-size:15.5px;font-weight:600;line-height:1.15;
   }
-  .pay button small{display:block;font-size:11px;font-weight:500;margin-top:2px}
+  .pay button small{display:block;font-size:12px;font-weight:500;margin-top:2px}
   .pay button.on{background:var(--green);border-color:var(--green);color:#fff}
   section{padding:12px 12px 0}
-  h2{font-size:12px;font-weight:700;color:var(--ink-soft);margin:16px 0 7px;letter-spacing:.03em}
+  h2{font-size:13px;font-weight:700;color:var(--ink-soft);margin:16px 0 7px;letter-spacing:.03em}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
   .prod{
-    position:relative;min-height:62px;padding:8px 8px;text-align:left;
+    position:relative;min-height:68px;padding:8px 8px;text-align:left;
     background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
     display:flex;flex-direction:column;justify-content:space-between;
   }
   .prod:active{background:#EDEBE6;transform:scale(.985)}
-  .prod .n{font-size:12px;font-weight:600;line-height:1.2}
-  .prod .p{font-size:15px;font-weight:700;margin-top:4px}
+  .prod .n{font-size:13.5px;font-weight:600;line-height:1.2}
+  .prod .p{font-size:17px;font-weight:700;margin-top:4px}
   .prod .badge{
     position:absolute;top:-7px;right:-7px;min-width:24px;height:24px;border-radius:12px;
     background:var(--green);color:#fff;font-size:13px;font-weight:700;
@@ -61,40 +66,40 @@
   .ticket{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
   .li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #EFEDE8}
   .li:last-child{border-bottom:none}
-  .li .name{flex:1;font-size:14px}
-  .li .sub{display:block;font-size:12px;color:var(--ink-soft)}
-  .li .amt{font-size:15px;font-weight:700;min-width:78px;text-align:right}
+  .li .name{flex:1;font-size:15.5px}
+  .li .sub{display:block;font-size:13px;color:var(--ink-soft)}
+  .li .amt{font-size:17px;font-weight:700;min-width:78px;text-align:right}
   .qbtn{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#F7F6F3;font-size:18px;font-weight:700;color:var(--ink)}
-  .empty{padding:16px 12px;color:var(--ink-soft);font-size:14px}
+  .empty{padding:16px 12px;color:var(--ink-soft);font-size:15px}
   footer{
     position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--paper);
     border-top:1px solid var(--line);padding:9px 12px calc(10px + env(safe-area-inset-bottom));
     box-shadow:0 -6px 18px rgba(0,0,0,.07);
   }
   .totline{display:flex;align-items:baseline;justify-content:space-between}
-  .totline .lbl{font-size:13px;color:var(--ink-soft)}
+  .totline .lbl{font-size:14px;color:var(--ink-soft)}
   .strike{text-decoration:line-through;color:var(--ink-soft);font-size:14px}
-  .big{font-size:34px;font-weight:800;line-height:1.05}
-  .disc{font-size:12px;color:var(--amber);font-weight:600}
+  .big{font-size:38px;font-weight:800;line-height:1.05}
+  .disc{font-size:13px;color:var(--amber);font-weight:600}
   .actions{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:6px;margin-top:8px}
-  .actions button{padding:13px 6px;border-radius:var(--radius);font-size:15px;font-weight:700;border:1px solid var(--line);background:#F7F6F3;color:var(--ink)}
+  .actions button{padding:14px 6px;border-radius:var(--radius);font-size:16.5px;font-weight:700;border:1px solid var(--line);background:#F7F6F3;color:var(--ink)}
   .actions .primary{background:var(--green);border-color:var(--green);color:#fff}
   .vuelto{display:flex;gap:6px;align-items:center;margin-top:8px}
-  .vuelto input{flex:1;min-width:0;padding:11px;font-size:17px;border:1px solid var(--line);border-radius:var(--radius);background:#F7F6F3}
-  .vuelto .out{font-size:15px;font-weight:700;white-space:nowrap}
+  .vuelto input{flex:1;min-width:0;padding:12px;font-size:18px;border:1px solid var(--line);border-radius:var(--radius);background:#F7F6F3}
+  .vuelto .out{font-size:16.5px;font-weight:700;white-space:nowrap}
   .tools{display:flex;gap:6px;flex-wrap:wrap;padding:16px 12px 24px}
-  .tools button{flex:1;padding:11px 8px;font-size:13px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius);color:var(--ink-soft);font-weight:600}
+  .tools button{flex:1;padding:12px 8px;font-size:14.5px;border:1px solid var(--line);background:var(--paper);border-radius:var(--radius);color:var(--ink-soft);font-weight:600}
   dialog{border:none;border-radius:14px;padding:0;width:min(92vw,420px);box-shadow:0 20px 50px rgba(0,0,0,.3)}
   dialog::backdrop{background:rgba(26,25,23,.5)}
   .dlg{padding:16px}
-  .dlg h3{margin:0 0 12px;font-size:17px}
-  .dlg label{display:block;font-size:12px;color:var(--ink-soft);margin:10px 0 4px}
+  .dlg h3{margin:0 0 12px;font-size:18px}
+  .dlg label{display:block;font-size:13px;color:var(--ink-soft);margin:10px 0 4px}
   .dlg input,.dlg select{width:100%;padding:11px;font-size:16px;border:1px solid var(--line);border-radius:8px;background:#F7F6F3}
   .dlg .row{display:flex;gap:8px;margin-top:16px}
-  .dlg .row button{flex:1;padding:12px;border-radius:8px;font-size:15px;font-weight:700;border:1px solid var(--line);background:#F7F6F3}
+  .dlg .row button{flex:1;padding:13px;border-radius:8px;font-size:16px;font-weight:700;border:1px solid var(--line);background:#F7F6F3}
   .dlg .row .primary{background:var(--green);border-color:var(--green);color:#fff}
   .dlg .row .danger{background:#fff;border-color:var(--red);color:var(--red)}
-  .log{font-size:13px;max-height:46vh;overflow:auto}
+  .log{font-size:14px;max-height:46vh;overflow:auto}
   .log div{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #EFEDE8}
   .toast{
     position:fixed;left:50%;transform:translateX(-50%);bottom:200px;z-index:50;
@@ -105,14 +110,14 @@
   .cliente{
     width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
     padding:11px 12px;margin-top:4px;background:var(--paper);border:1px solid var(--line);
-    border-radius:var(--radius);text-align:left;font-size:14px;color:var(--ink-soft);
+    border-radius:var(--radius);text-align:left;font-size:15.5px;color:var(--ink-soft);
   }
   .cliente.on{border-color:var(--green);color:var(--ink)}
   .cliente b{font-weight:700}
-  .cliente .flag{font-size:12px;color:var(--green);font-weight:700;white-space:nowrap}
+  .cliente .flag{font-size:13px;color:var(--green);font-weight:700;white-space:nowrap}
   .check{display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px;border:1px solid var(--line);border-radius:8px;background:#F7F6F3}
   .check input{width:22px;height:22px;flex:none}
-  .check label{margin:0;font-size:14px;color:var(--ink);font-weight:600}
+  .check label{margin:0;font-size:15px;color:var(--ink);font-weight:600}
   .aviso{font-size:12px;margin-top:5px;font-weight:600}
   .grow{display:flex;gap:5px;align-items:center;margin-bottom:6px}
   .grow input{flex:1;min-width:0;padding:10px;font-size:15px;border:1px solid var(--line);border-radius:8px;background:#F7F6F3}
@@ -939,7 +944,13 @@ function armarDetalle(){
   return {cab, filas};
 }
 
-function descargar(nombre, texto, mime){
+async function descargar(nombre, texto, mime){
+  try{
+    if(window.claude && typeof window.claude.use === 'function'){
+      const dl = await window.claude.use('downloads');
+      if(dl){ await dl.save({filename:nombre, data:'\uFEFF'+texto}); return true; }
+    }
+  }catch(e){ return false; }
   try{
     const blob = new Blob(['\uFEFF'+texto], {type:mime});
     const url = URL.createObjectURL(blob);
@@ -951,28 +962,28 @@ function descargar(nombre, texto, mime){
   }catch(e){ return false; }
 }
 
-document.getElementById('eDown').onclick = ()=>{
+document.getElementById('eDown').onclick = async ()=>{
   const {cab, filas} = armarFilas();
   const csv = [cab.join(';')].concat(filas.map(f=>f.join(';'))).join('\r\n');
   const nombre = "mis-comprobantes-" + (document.getElementById("eFecha").value || 'dia') + '.csv';
   document.getElementById('dlgExp').close();
-  toast(descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Archivo generado' : 'No se pudo descargar, usá Copiar');
+  toast(await descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Archivo generado' : 'No se pudo descargar, usá Copiar');
 };
 
-document.getElementById('eCob').onclick = ()=>{
+document.getElementById('eCob').onclick = async ()=>{
   const {cab, saldo, filas} = armarCobros();
   const csv = [cab.join(';'), saldo.join(';')].concat(filas.map(f=>f.join(';'))).join('\r\n');
   const nombre = 'cobros-' + (document.getElementById('eFecha').value || 'dia') + '.csv';
   document.getElementById('dlgExp').close();
-  toast(descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Cobros generados' : 'No se pudo descargar');
+  toast(await descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Cobros generados' : 'No se pudo descargar');
 };
 
-document.getElementById('eDet').onclick = ()=>{
+document.getElementById('eDet').onclick = async ()=>{
   const {cab, filas} = armarDetalle();
   const csv = [cab.join(';')].concat(filas.map(f=>f.join(';'))).join('\r\n');
   const nombre = 'detalle-ventas-' + (document.getElementById('eFecha').value || 'dia') + '.csv';
   document.getElementById('dlgExp').close();
-  toast(descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Detalle generado' : 'No se pudo descargar');
+  toast(await descargar(nombre, csv, 'text/csv;charset=utf-8') ? 'Detalle generado' : 'No se pudo descargar');
 };
 
 document.getElementById('eCopy').onclick = ()=>{
@@ -989,7 +1000,7 @@ document.getElementById('eCopy').onclick = ()=>{
 };
 
 /* ---------- funcionar sin conexión ---------- */
-if('serviceWorker' in navigator && location.protocol === 'https:'){
+if('serviceWorker' in navigator && location.protocol === 'https:' && location.hostname.indexOf('claude.ai') === -1){
   window.addEventListener('load', ()=>{
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
@@ -1009,3 +1020,5 @@ if('serviceWorker' in navigator && location.protocol === 'https:'){
   });
 })();
 </script>
+</body>
+</html>
