@@ -1,0 +1,216 @@
+﻿{
+  "catalogo": "manual-20260916234138",
+  "grupos": [
+    "Madejas",
+    "Bundles",
+    "Kits",
+    "Libros & Revistas",
+    "Gift Cards",
+    "Otros"
+  ],
+  "productos": [
+    {
+      "id": "m01",
+      "cat": "Madejas",
+      "nombre": "Top Superfina 100g",
+      "precio": 12000
+    },
+    {
+      "id": "m02",
+      "cat": "Madejas",
+      "nombre": "Algodón Frontera Sport",
+      "precio": 15000
+    },
+    {
+      "id": "m03",
+      "cat": "Madejas",
+      "nombre": "Piño Los Pozos",
+      "precio": 19500
+    },
+    {
+      "id": "m04",
+      "cat": "Madejas",
+      "nombre": "Merino Original",
+      "precio": 21500
+    },
+    {
+      "id": "m05",
+      "cat": "Madejas",
+      "nombre": "Caja de Bordado",
+      "precio": 24000
+    },
+    {
+      "id": "m06",
+      "cat": "Madejas",
+      "nombre": "Superfine Fingering",
+      "precio": 25000
+    },
+    {
+      "id": "m07",
+      "cat": "Madejas",
+      "nombre": "Super Bulky",
+      "precio": 43000
+    },
+    {
+      "id": "m08",
+      "cat": "Madejas",
+      "nombre": "Hilado a mano fino",
+      "precio": 43000
+    },
+    {
+      "id": "m09",
+      "cat": "Madejas",
+      "nombre": "Hilado a mano medio",
+      "precio": 47300
+    },
+    {
+      "id": "m10",
+      "cat": "Madejas",
+      "nombre": "Hilado a mano grueso",
+      "precio": 53750
+    },
+    {
+      "id": "m11",
+      "cat": "Madejas",
+      "nombre": "Top Superfina 500g",
+      "precio": 54000
+    },
+    {
+      "id": "m12",
+      "cat": "Madejas",
+      "nombre": "Cono algodón 500g",
+      "precio": 67500
+    },
+    {
+      "id": "b01",
+      "cat": "Bundles",
+      "nombre": "Mini minis Single",
+      "precio": 27500
+    },
+    {
+      "id": "b02",
+      "cat": "Bundles",
+      "nombre": "Mini minis Superfine",
+      "precio": 30000
+    },
+    {
+      "id": "b03",
+      "cat": "Bundles",
+      "nombre": "Minis x5 Los Pozos",
+      "precio": 58500
+    },
+    {
+      "id": "b04",
+      "cat": "Bundles",
+      "nombre": "Minis Superfine",
+      "precio": 60000
+    },
+    {
+      "id": "b05",
+      "cat": "Bundles",
+      "nombre": "Bundle Lira",
+      "precio": 64500
+    },
+    {
+      "id": "b06",
+      "cat": "Bundles",
+      "nombre": "Minis Single",
+      "precio": 103200
+    },
+    {
+      "id": "b07",
+      "cat": "Bundles",
+      "nombre": "Minis Superfine grande",
+      "precio": 120000
+    },
+    {
+      "id": "k01",
+      "cat": "Kits",
+      "nombre": "Kit Kaleidoscope",
+      "precio": 116700
+    },
+    {
+      "id": "k02",
+      "cat": "Kits",
+      "nombre": "Kit Painting s/libro",
+      "precio": 153200
+    },
+    {
+      "id": "k03",
+      "cat": "Kits",
+      "nombre": "Kit Painting c/libro",
+      "precio": 228200,
+      "exm": 75000
+    },
+    {
+      "id": "l01",
+      "cat": "Libros & Revistas",
+      "nombre": "Laine Magazine",
+      "precio": 39000,
+      "ex": true
+    },
+    {
+      "id": "l02",
+      "cat": "Libros & Revistas",
+      "nombre": "Libro",
+      "precio": 49000,
+      "ex": true
+    },
+    {
+      "id": "l03",
+      "cat": "Libros & Revistas",
+      "nombre": "Libro",
+      "precio": 75000,
+      "ex": true
+    },
+    {
+      "id": "l04",
+      "cat": "Libros & Revistas",
+      "nombre": "Libro",
+      "precio": 85000,
+      "ex": true
+    },
+    {
+      "id": "l05",
+      "cat": "Libros & Revistas",
+      "nombre": "Libro",
+      "precio": 95000,
+      "ex": true
+    },
+    {
+      "id": "g02",
+      "cat": "Gift Cards",
+      "nombre": "Gift Card",
+      "precio": 50000
+    },
+    {
+      "id": "g03",
+      "cat": "Gift Cards",
+      "nombre": "Gift Card",
+      "precio": 150000
+    },
+    {
+      "id": "o01",
+      "cat": "Otros",
+      "nombre": "Patrón digital",
+      "precio": 13500
+    }
+  ],
+  "pagos": [
+    {
+      "id": "ef",
+      "nombre": "Efectivo",
+      "desc": 10
+    },
+    {
+      "id": "tr",
+      "nombre": "Transferencia",
+      "desc": 10
+    },
+    {
+      "id": "tj",
+      "nombre": "Tarjeta / QR",
+      "desc": 0
+    }
+  ]
+}
