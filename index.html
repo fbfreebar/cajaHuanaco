@@ -286,11 +286,12 @@
   <div id="logSum" style="margin-top:12px;font-size:14px;font-weight:700"></div>
   <div class="row">
     <button id="logCopy">Copiar resumen</button>
+    <button id="logCierres">Cierres guardados</button>
     <button id="logExp">Exportar a Excel</button>
     <button id="logClose" class="primary">Volver</button>
   </div>
   <div class="row">
-    <button id="logReset" class="danger">Cerrar caja y borrar ventas</button>
+    <button id="logReset" class="danger">Cerrar caja (la guarda)</button>
   </div>
 </div></dialog>
 
@@ -315,6 +316,12 @@
   <h3>Grupos de productos</h3>
   <div id="gList"></div>
   <button id="gAdd" style="width:100%;margin-top:10px;padding:12px;border:1px dashed var(--line);background:#F7F6F3;border-radius:8px;font-size:14px;font-weight:600;color:var(--ink)">+ Agregar grupo</button>
+  <div class="row" style="margin-top:14px">
+    <button id="gExport">Descargar catálogo</button>
+    <button id="gImport">Cargar catálogo</button>
+  </div>
+  <input id="gFile" type="file" accept=".json,application/json" hidden>
+  <div style="font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.4">Subí el catálogo descargado a GitHub como <b>catalogo.json</b> y las demás tabletas lo toman solas al abrir con internet.</div>
   <button id="gReset" style="width:100%;margin-top:8px;padding:10px;border:1px solid #E7C4C4;background:#FFF2F2;border-radius:8px;font-size:13px;font-weight:600;color:var(--red)">Restaurar catálogo Huanaco</button>
   <div class="row">
     <button id="gCancel">Cancelar</button>
@@ -347,6 +354,14 @@
     <button id="cClear" class="danger">Vaciar</button>
     <button id="cCancel">Cancelar</button>
     <button id="cSave" class="primary">Guardar</button>
+  </div>
+</div></dialog>
+
+<dialog id="dlgCie"><div class="dlg">
+  <h3>Cierres guardados</h3>
+  <div id="cieBody" class="log"></div>
+  <div class="row">
+    <button id="cieClose" class="primary">Volver</button>
   </div>
 </div></dialog>
 
@@ -443,6 +458,9 @@ const DEFAULTS = {
 let cfg = JSON.parse(JSON.stringify(DEFAULTS));
 let ticket = [];
 let ventas = [];
+let cierres = [];
+let fuente = null;                       // cierre archivado que se está exportando
+const datosVenta = () => (fuente ? fuente.ventas : ventas);
 let pagoSel = 'ef';
 let editMode = false;
 let editing = null;
@@ -468,11 +486,29 @@ const STORE = (function(){
 
 async function load(){
   try{ const v = STORE.get('expohobby:cfg'); if(v) cfg = JSON.parse(v); }catch(e){}
+  try{
+    if(location.protocol.startsWith('http')){
+      const r = await fetch('catalogo.json?v=' + Date.now(), {cache:'no-store'});
+      if(r.ok){
+        const cat = await r.json();
+        if(Array.isArray(cat.productos) && Array.isArray(cat.grupos) && cat.catalogo && cat.catalogo !== cfg.catalogo){
+          cfg.catalogo = cat.catalogo;
+          cfg.grupos = cat.grupos;
+          cfg.productos = cat.productos;
+          if(Array.isArray(cat.pagos) && cat.pagos.length) cfg.pagos = cat.pagos;
+          STORE.set('expohobby:cfg', JSON.stringify(cfg));
+          return;
+        }
+        if(cat.catalogo === cfg.catalogo) return;
+      }
+    }
+  }catch(e){}
   if(cfg.catalogo !== DEFAULTS.catalogo){
     cfg = JSON.parse(JSON.stringify(DEFAULTS));
     STORE.set('expohobby:cfg', JSON.stringify(cfg));
   }
   try{ const v = STORE.get('expohobby:ventas'); if(v) ventas = JSON.parse(v); }catch(e){}
+  try{ const v = STORE.get('expohobby:cierres'); if(v) cierres = JSON.parse(v); }catch(e){}
   if(!cfg.pagos) cfg.pagos = DEFAULTS.pagos;
   if(!cfg.productos) cfg.productos = DEFAULTS.productos;
   if(!Array.isArray(cfg.grupos) || !cfg.grupos.length){
@@ -482,6 +518,7 @@ async function load(){
 }
 async function saveCfg(){ STORE.set('expohobby:cfg', JSON.stringify(cfg)); }
 async function saveVentas(){ STORE.set('expohobby:ventas', JSON.stringify(ventas)); }
+async function saveCierres(){ STORE.set('expohobby:cierres', JSON.stringify(cierres)); }
 
 let cliente = {tipo:'B', email:'', enviar:false, cuit:'', nombre:''};
 const clienteVacio = () => ({tipo:'B', email:'', enviar:false, cuit:'', nombre:''});
@@ -524,6 +561,35 @@ document.getElementById('gAdd').onclick = ()=>{
   syncG(); gTmp.push({orig:null, nombre:''}); renderGrupos();
   const inputs = document.querySelectorAll('#gList .grow input');
   if(inputs.length) inputs[inputs.length-1].focus();
+};
+document.getElementById('gExport').onclick = async ()=>{
+  const cat = {
+    catalogo: 'manual-' + new Date().toISOString().slice(0,19).replace(/[-:T]/g,''),
+    grupos: cfg.grupos,
+    productos: cfg.productos,
+    pagos: cfg.pagos
+  };
+  document.getElementById('dlgGru').close();
+  toast(await descargar('catalogo.json', JSON.stringify(cat, null, 2), 'application/json') ? 'Catálogo descargado' : 'No se pudo descargar');
+};
+document.getElementById('gImport').onclick = ()=> document.getElementById('gFile').click();
+document.getElementById('gFile').onchange = async e=>{
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  try{
+    const txt = await file.text();
+    const cat = JSON.parse(txt);
+    if(!Array.isArray(cat.productos) || !Array.isArray(cat.grupos)) throw 0;
+    cfg.catalogo = cat.catalogo || 'importado';
+    cfg.grupos = cat.grupos;
+    cfg.productos = cat.productos;
+    if(Array.isArray(cat.pagos) && cat.pagos.length) cfg.pagos = cat.pagos;
+    ticket = [];
+    await saveCfg();
+    document.getElementById('dlgGru').close();
+    renderPagos(); render(); toast('Catálogo cargado');
+  }catch(err){ toast('El archivo no es un catálogo válido'); }
+  e.target.value = '';
 };
 document.getElementById('gCancel').onclick = ()=> document.getElementById('dlgGru').close();
 document.getElementById('gReset').onclick = async ()=>{
@@ -847,6 +913,56 @@ document.getElementById('btnLog').onclick = ()=>{
     Object.keys(porPago).map(k=>'<br><span style="font-weight:500;color:var(--ink-soft)">'+k+': '+fmt(porPago[k])+'</span>').join('');
   document.getElementById('dlgLog').showModal();
 };
+function renderCierres(){
+  const body = document.getElementById('cieBody');
+  if(!cierres.length){ body.innerHTML = '<div style="color:var(--ink-soft)">Todavía no cerraste ninguna caja.</div>'; return; }
+  body.innerHTML = '';
+  cierres.slice().reverse().forEach(c=>{
+    const tot = c.ventas.reduce((a,v)=>a+v.total,0);
+    const f = new Date(c.hora);
+    const box = document.createElement('div');
+    box.style.cssText = 'display:block;padding:10px 0;border-bottom:1px solid #EFEDE8';
+    box.innerHTML = '<b>'+c.etiqueta+'</b><br><span style="color:var(--ink-soft);font-size:12px">'
+      + f.toLocaleDateString('es-AR') + ' ' + f.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false})
+      + ' · ' + c.ventas.length + (c.ventas.length===1?' venta · ':' ventas · ') + fmt(tot) + '</span>';
+    const fila = document.createElement('div');
+    fila.style.cssText = 'display:flex;gap:6px;margin-top:8px';
+    const exp = document.createElement('button'); exp.textContent = 'Exportar';
+    exp.style.cssText = 'flex:1;padding:9px;border:1px solid var(--line);background:#F7F6F3;border-radius:8px;font-size:13px;font-weight:600';
+    exp.onclick = ()=>{
+      fuente = c;
+      document.getElementById('dlgCie').close();
+      abrirExport();
+      toast('Exportando: ' + c.etiqueta);
+    };
+    const res = document.createElement('button'); res.textContent = 'Volver a la caja';
+    res.style.cssText = exp.style.cssText;
+    res.onclick = async ()=>{
+      if(!confirm('Las ventas de "'+c.etiqueta+'" vuelven a la caja actual y se suman a las que haya. ¿Seguir?')) return;
+      ventas = ventas.concat(c.ventas);
+      cierres = cierres.filter(x=>x!==c);
+      await saveVentas(); await saveCierres();
+      document.getElementById('dlgCie').close();
+      render(); toast('Cierre restaurado');
+    };
+    const del = document.createElement('button'); del.textContent = '✕';
+    del.style.cssText = 'width:44px;padding:9px;border:1px solid #E7C4C4;background:#FFF2F2;color:var(--red);border-radius:8px;font-size:14px;font-weight:700';
+    del.onclick = async ()=>{
+      if(!confirm('Borrar definitivamente el cierre "'+c.etiqueta+'"? No se puede deshacer.')) return;
+      cierres = cierres.filter(x=>x!==c);
+      await saveCierres(); renderCierres(); toast('Cierre borrado');
+    };
+    fila.append(exp, res, del);
+    box.appendChild(fila);
+    body.appendChild(box);
+  });
+}
+document.getElementById('logCierres').onclick = ()=>{
+  renderCierres();
+  document.getElementById('dlgLog').close();
+  document.getElementById('dlgCie').showModal();
+};
+document.getElementById('cieClose').onclick = ()=> document.getElementById('dlgCie').close();
 document.getElementById('logClose').onclick = ()=> document.getElementById('dlgLog').close();
 document.getElementById('logCopy').onclick = ()=>{
   if(!ventas.length){ toast('No hay ventas'); return; }
@@ -871,9 +987,20 @@ document.getElementById('logCopy').onclick = ()=>{
   toast(ok ? 'Resumen copiado' : 'No se pudo copiar');
 };
 document.getElementById('logReset').onclick = async ()=>{
-  if(!confirm('¿Cerrar caja y borrar las ventas registradas? Los productos y precios se mantienen.')) return;
-  ventas = []; await saveVentas();
-  document.getElementById('dlgLog').close(); render(); toast('Caja cerrada');
+  if(!ventas.length){ toast('No hay ventas para cerrar'); return; }
+  const etiqueta = prompt('Nombre para este cierre (por ejemplo "Expohobby sábado tarde")',
+                          'Cierre ' + new Date().toLocaleDateString('es-AR'));
+  if(etiqueta === null) return;
+  cierres.push({
+    id: Date.now(),
+    hora: new Date().toISOString(),
+    etiqueta: (etiqueta || '').trim() || ('Cierre ' + new Date().toLocaleDateString('es-AR')),
+    ventas: ventas.slice()
+  });
+  ventas = [];
+  await saveCierres(); await saveVentas();
+  document.getElementById('dlgLog').close();
+  render(); toast('Caja cerrada y guardada');
 };
 
 /* ---------- exportar a SOS Contador ---------- */
@@ -882,8 +1009,7 @@ function expCfg(){
   try{ return Object.assign({}, expDefault, JSON.parse(STORE.get('expohobby:exp')||'{}')); }
   catch(e){ return Object.assign({}, expDefault); }
 }
-document.getElementById('logExp').onclick = ()=>{
-  if(!ventas.length){ toast('No hay ventas para exportar'); return; }
+function abrirExport(){
   const c = expCfg();
   const hoy = new Date(); hoy.setMinutes(hoy.getMinutes()-hoy.getTimezoneOffset());
   document.getElementById('eFecha').value = hoy.toISOString().slice(0,10);
@@ -894,6 +1020,11 @@ document.getElementById('logExp').onclick = ()=>{
   document.getElementById('eIva').value  = c.iva;
   document.getElementById('eExtra').value = c.extra || 'no';
   document.getElementById('dlgExp').showModal();
+}
+document.getElementById('logExp').onclick = ()=>{
+  if(!ventas.length){ toast('No hay ventas para exportar'); return; }
+  fuente = null;
+  abrirExport();
 };
 document.getElementById('eCancel').onclick = ()=> document.getElementById('dlgExp').close();
 
@@ -916,7 +1047,7 @@ function armarFilas(){
                'Cód. Autorización','Tipo Doc. Receptor','Nro. Doc. Receptor','Denominación Receptor',
                'Tipo Cambio','Moneda','Imp. Neto Gravado','Imp. Neto No Gravado','Imp. Op. Exentas',
                'Otros Tributos','IVA','Imp. Total'];
-  const filas = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora)).map(v=>{
+  const filas = datosVenta().slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora)).map(v=>{
     const total  = v.total;
     const exento = Math.min(v.exento || 0, total);
     const grav   = total - exento;
@@ -943,7 +1074,7 @@ function armarFilas(){
     const relleno = inicio - cab.length;
     const vacios = new Array(relleno).fill('');
     cab.push(...vacios, 'Centro de Costo', 'Observaciones', 'E-mail', 'Teléfono');
-    const orden = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora));
+    const orden = datosVenta().slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora));
     filas.forEach((f,i)=>{
       const v = orden[i], c = v.cliente || {};
       f.push(...vacios, '', 'Cobro: ' + v.pago, c.email || '', '');
@@ -962,7 +1093,7 @@ function armarCobros(){
   const f = document.getElementById('eFecha').value;
   const fecha = f ? f.split('-').reverse().join('/') : new Date().toLocaleDateString('es-AR');
   const dec = n => n.toFixed(2).replace('.', ',');
-  const orden = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora));
+  const orden = datosVenta().slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora));
   const cab = ['Fecha','Descripción','Importe','Saldo'];
   const saldo = ['', '', '', ''];          // fila 2: reservada para el saldo de la cuenta
   let filas;
@@ -993,7 +1124,7 @@ function armarDetalle(){
   };
   const dec = n => n.toFixed(2).replace('.', ',');
   const cab = ['Fecha','Hora','Comprobante','Punto de Venta','Número','Medio de pago','Detalle','Total','Mail','Enviar factura','CUIT','Razón social'];
-  const filas = ventas.slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora)).map(v=>{
+  const filas = datosVenta().slice().sort((a,b)=> new Date(a.hora)-new Date(b.hora)).map(v=>{
     const d = new Date(v.hora), c = v.cliente || {};
     const tipo = c.tipo || 'B';
     if(num[tipo] === undefined) num[tipo] = 1;
